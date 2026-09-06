@@ -5,27 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>라이트 아웃 — 반응속도 테스트</title>
 <meta name="description" content="F1 출발 신호를 본뜬 반응속도 테스트 게임. 5개의 빨간불이 꺼지는 순간 클릭해 나만의 기록을 세워보세요.">
+<meta name="google-adsense-account" content="ca-pub-6914149942050509">
 
 <!--
   ============================================================
   배포 전 체크리스트
   ============================================================
-  1) 아래 "ca-pub-XXXXXXXXXXXXXXXX" 두 곳을 애드센스 발행자 ID로 교체
-  2) 아래 "data-ad-slot" 두 곳을 애드센스에서 생성한 광고 단위 ID로 교체
-  3) 아래 SUPABASE_URL / SUPABASE_ANON_KEY를 본인 프로젝트 값으로 교체
-     (supabase.com 무료 가입 -> New Project -> SQL Editor에서
-      이 파일과 함께 받은 leaderboard.sql 실행 -> Project Settings
-      -> API에서 Project URL과 anon public key 복사)
-  4) Database -> Replication에서 leaderboard 테이블의 Realtime 토글 켜기
-     (꺼두면 새로고침 전까진 남의 신기록이 안 보임 - 게임은 되지만 "실시간"은 아님)
-  5) 이 파일을 GitHub Pages / Vercel / Netlify 등 본인 도메인에 배포
-  6) 도메인 루트에 ads.txt 파일 추가, 내용:
-     google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
-     (pub- 뒤 숫자는 발행자 ID에서 ca- 를 뺀 부분과 동일해야 함)
-  7) 애드센스 콘솔에서 이 도메인을 사이트로 등록하고 심사 요청
+  1) [완료] 애드센스 발행자 ID 연결 (ca-pub-6914149942050509)
+  2) 아래 "data-ad-slot" 두 곳을, 애드센스 승인 후 만든 광고 단위 ID로 교체
+     (지금은 자리표시자라 광고 자리는 비어있게 나와요 - 정상)
+  3) [완료] SUPABASE_URL / SUPABASE_ANON_KEY 연결됨
+  4) [완료] Realtime 토글 켜짐
+  5) [완료] GitHub Pages 배포됨: https://jap-del.github.io/Right-Out/
+  6) 저장소 루트에 ads.txt 파일 추가 (같이 받은 ads.txt 파일을
+     index.html과 같은 위치에 업로드하면 됨)
+  7) 애드센스 콘솔에서 심사 요청 -> 보통 며칠~2주 소요
   ============================================================
 -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -471,7 +468,7 @@
   <div class="ad-slab">
     <ins class="adsbygoogle"
          style="display:block;width:100%"
-         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+         data-ad-client="ca-pub-6914149942050509"
          data-ad-slot="0000000000"
          data-ad-format="auto"
          data-full-width-responsive="true"></ins>
@@ -496,7 +493,7 @@
   <div class="ad-slab rect">
     <ins class="adsbygoogle"
          style="display:inline-block;width:300px;height:250px"
-         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+         data-ad-client="ca-pub-6914149942050509"
          data-ad-slot="0000000000"></ins>
   </div>
   <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
