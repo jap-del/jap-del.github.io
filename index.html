@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>라이트 아웃 — 반응속도 테스트</title>
+<meta name="description" content="F1 출발 신호를 본뜬 반응속도 테스트 게임. 5개의 빨간불이 꺼지는 순간 클릭해 나만의 기록을 세워보세요.">
+
+<!--
+  ============================================================
+  배포 전 체크리스트
+  ============================================================
+  1) 아래 "ca-pub-XXXXXXXXXXXXXXXX" 두 곳을 애드센스 발행자 ID로 교체
+  2) 아래 "data-ad-slot" 두 곳을 애드센스에서 생성한 광고 단위 ID로 교체
+  3) 아래 SUPABASE_URL / SUPABASE_ANON_KEY를 본인 프로젝트 값으로 교체
+     (supabase.com 무료 가입 -> New Project -> SQL Editor에서
+      이 파일과 함께 받은 leaderboard.sql 실행 -> Project Settings
+      -> API에서 Project URL과 anon public key 복사)
+  4) Database -> Replication에서 leaderboard 테이블의 Realtime 토글 켜기
+     (꺼두면 새로고침 전까진 남의 신기록이 안 보임 - 게임은 되지만 "실시간"은 아님)
+  5) 이 파일을 GitHub Pages / Vercel / Netlify 등 본인 도메인에 배포
+  6) 도메인 루트에 ads.txt 파일 추가, 내용:
+     google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+     (pub- 뒤 숫자는 발행자 ID에서 ca- 를 뺀 부분과 동일해야 함)
+  7) 애드센스 콘솔에서 이 도메인을 사이트로 등록하고 심사 요청
+  ============================================================
+-->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --asphalt-900:#0b0d10;
+    --asphalt-800:#14171c;
+    --track-line:#2a2f38;
+    --signal-red:#ff3535;
+    --signal-red-dim:#3a1414;
+    --signal-green:#17e88f;
+    --chalk:#eef1f4;
+    --chalk-dim:#8d97a1;
+    --gold:#ffb020;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    background:var(--asphalt-900);
+    color:var(--chalk);
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 16px;
+    font-family:"IBM Plex Sans KR","IBM Plex Sans",-apple-system,sans-serif;
+    background-image:
+      repeating-linear-gradient(135deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 2px, transparent 2px, transparent 26px);
+  }
+
+  .game-wrap{
+    position:relative;
+    width:100%;
+    max-width:460px;
+  }
+
+  .stage{
+    width:100%;
+    max-width:460px;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+    user-select:none;
+  }
+
+  .rail{
+    display:none;
+    flex-direction:column;
+    gap:12px;
+    position:absolute;
+    top:64px;
+    left:calc(100% + 24px);
+  }
+  @media (min-width:1200px){
+    .rail{ display:flex; }
+  }
+
+  .ad-slab{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    min-height:100px;
+    overflow:hidden;
+  }
+  .ad-slab.rect{ width:300px; min-height:250px; }
+
+  .masthead{
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+
+  .kicker{
+    font-family:"Chakra Petch",sans-serif;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--signal-red);
+  }
+
+  h1{
+    font-family:"Chakra Petch",sans-serif;
+    font-size:clamp(28px,7vw,36px);
+    font-weight:700;
+    letter-spacing:0.02em;
+    margin:0;
+    text-wrap:balance;
+  }
+
+  .sub{
+    color:var(--chalk-dim);
+    font-size:14px;
+    line-height:1.6;
+    margin:0;
+  }
+
+  .panel{
+    background:var(--asphalt-800);
+    border:1px solid var(--track-line);
+    border-radius:18px;
+    padding:28px 24px 24px;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+    cursor:pointer;
+    transition:border-color 0.15s ease, transform 0.05s ease;
+    position:relative;
+    overflow:hidden;
+  }
+  .panel:focus-visible{
+    outline:2px solid var(--signal-green);
+    outline-offset:3px;
+  }
+  .panel.false-start{ border-color:var(--signal-red); }
+  .panel.go{ background:#0e2019; border-color:var(--signal-green); }
+  .panel.idle{ cursor:default; }
+
+  .lights{
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    padding:16px;
+    background:var(--asphalt-900);
+    border-radius:12px;
+    border:1px solid var(--track-line);
+  }
+
+  .bulb{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:var(--signal-red-dim);
+    border:1px solid #2a1414;
+    transition:background 0.08s ease, box-shadow 0.08s ease;
+  }
+  .bulb.lit{
+    background:var(--signal-red);
+    box-shadow:0 0 18px 4px rgba(255,53,53,0.55);
+  }
+
+  .readout{
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    min-height:96px;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .status-word{
+    font-family:"Chakra Petch",sans-serif;
+    font-size:15px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--chalk-dim);
+  }
+  .go .status-word{ color:var(--signal-green); }
+  .false-start .status-word{ color:var(--signal-red); }
+
+  .ms-value{
+    font-family:"Chakra Petch",sans-serif;
+    font-size:54px;
+    font-weight:700;
+    font-variant-numeric:tabular-nums;
+    line-height:1.1;
+  }
+  .ms-value .unit{
+    font-size:20px;
+    font-weight:600;
+    color:var(--chalk-dim);
+    margin-left:4px;
+  }
+
+  .rank-line{
+    font-size:13px;
+    color:var(--chalk-dim);
+    max-width:320px;
+  }
+
+  .cta-row{ display:flex; gap:10px; }
+
+  button.primary{
+    flex:1;
+    font-family:"Chakra Petch",sans-serif;
+    font-size:15px;
+    font-weight:600;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    background:var(--signal-green);
+    color:#052018;
+    border:none;
+    border-radius:10px;
+    padding:14px;
+    cursor:pointer;
+    transition:filter 0.12s ease, transform 0.05s ease;
+  }
+  button.primary:hover{ filter:brightness(1.08); }
+  button.primary:active{ transform:translateY(1px); }
+  button.primary:focus-visible{ outline:2px solid var(--chalk); outline-offset:2px; }
+
+  button.ghost{
+    font-family:"IBM Plex Sans KR",sans-serif;
+    font-size:13px;
+    font-weight:500;
+    background:transparent;
+    color:var(--chalk-dim);
+    border:1px solid var(--track-line);
+    border-radius:10px;
+    padding:14px 16px;
+    cursor:pointer;
+    transition:border-color 0.12s ease, color 0.12s ease;
+  }
+  button.ghost:hover{ border-color:var(--chalk-dim); color:var(--chalk); }
+
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+  }
+  .tile{
+    background:var(--asphalt-800);
+    border:1px solid var(--track-line);
+    border-radius:12px;
+    padding:12px 8px;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .tile .label{
+    font-family:"Chakra Petch",sans-serif;
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--chalk-dim);
+  }
+  .tile .value{
+    font-family:"Chakra Petch",sans-serif;
+    font-size:20px;
+    font-weight:700;
+    font-variant-numeric:tabular-nums;
+  }
+  .tile.best .value{ color:var(--gold); }
+
+  .history{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .chip{
+    font-family:"Chakra Petch",sans-serif;
+    font-size:11px;
+    font-weight:600;
+    font-variant-numeric:tabular-nums;
+    background:var(--asphalt-800);
+    border:1px solid var(--track-line);
+    border-radius:999px;
+    padding:5px 10px;
+    color:var(--chalk-dim);
+  }
+  .chip.false{ color:var(--signal-red); border-color:rgba(255,53,53,0.35); }
+
+  .leaderboard{
+    background:var(--asphalt-800);
+    border:1px solid var(--track-line);
+    border-radius:14px;
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .lb-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .lb-title{
+    font-family:"Chakra Petch",sans-serif;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--chalk-dim);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .lb-dot{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--chalk-dim);
+  }
+  .lb-dot.live{
+    background:var(--signal-green);
+    box-shadow:0 0 6px 1px rgba(23,232,143,0.7);
+  }
+  .name-input{
+    font-family:"IBM Plex Sans KR",sans-serif;
+    font-size:12px;
+    font-weight:500;
+    background:var(--asphalt-900);
+    color:var(--chalk);
+    border:1px solid var(--track-line);
+    border-radius:8px;
+    padding:6px 10px;
+    width:120px;
+    text-align:right;
+  }
+  .name-input:focus-visible{
+    outline:2px solid var(--signal-green);
+    outline-offset:1px;
+  }
+  .lb-rows{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    max-height:260px;
+    overflow-y:auto;
+  }
+  .lb-row{
+    display:grid;
+    grid-template-columns:28px 1fr auto;
+    align-items:center;
+    gap:10px;
+    padding:8px 6px;
+    border-radius:8px;
+    font-size:13px;
+  }
+  .lb-row.me{
+    background:rgba(23,232,143,0.08);
+    border:1px solid rgba(23,232,143,0.3);
+  }
+  .lb-rank{
+    font-family:"Chakra Petch",sans-serif;
+    font-weight:700;
+    font-variant-numeric:tabular-nums;
+    color:var(--chalk-dim);
+    text-align:center;
+  }
+  .lb-rank.gold{ color:#ffd35c; }
+  .lb-rank.silver{ color:#d7dde3; }
+  .lb-rank.bronze{ color:#e0a35f; }
+  .lb-name{
+    color:var(--chalk);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .lb-ms{
+    font-family:"Chakra Petch",sans-serif;
+    font-weight:700;
+    font-variant-numeric:tabular-nums;
+    color:var(--chalk);
+  }
+  .lb-empty{
+    font-size:12px;
+    color:var(--chalk-dim);
+    text-align:center;
+    padding:12px 0;
+  }
+
+  footer{
+    text-align:center;
+    font-size:11px;
+    color:var(--chalk-dim);
+    opacity:0.6;
+  }
+
+  @keyframes shake{
+    0%,100%{ transform:translateX(0); }
+    25%{ transform:translateX(-6px); }
+    75%{ transform:translateX(6px); }
+  }
+  .panel.false-start{ animation:shake 0.28s ease; }
+
+  @media (prefers-reduced-motion: reduce){
+    .panel.false-start{ animation:none; }
+    *{ transition-duration:0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="game-wrap">
+<div class="stage">
+  <div class="masthead">
+    <span class="kicker">Reaction Time Trainer</span>
+    <h1>라이트 아웃</h1>
+    <p class="sub">F1 스타트처럼 5개의 빨간불이 켜졌다 <strong>한번에 꺼지는 순간</strong> 클릭하세요. 너무 일찍 누르면 부정출발입니다.</p>
+  </div>
+
+  <div class="panel idle" id="panel" tabindex="0" role="button" aria-label="반응속도 테스트 시작">
+    <div class="lights" id="lights">
+      <div class="bulb"></div>
+      <div class="bulb"></div>
+      <div class="bulb"></div>
+      <div class="bulb"></div>
+      <div class="bulb"></div>
+    </div>
+
+    <div class="readout">
+      <span class="status-word" id="statusWord">시작할 준비가 되면 아래 버튼을 누르세요</span>
+      <div class="ms-value" id="msValue" style="display:none;"><span id="msNumber">0</span><span class="unit">ms</span></div>
+      <p class="rank-line" id="rankLine"></p>
+    </div>
+  </div>
+
+  <div class="cta-row">
+    <button class="primary" id="mainBtn">시작</button>
+    <button class="ghost" id="copyBtn" style="display:none;">결과 복사</button>
+  </div>
+
+  <div class="stats">
+    <div class="tile best">
+      <span class="label">Best</span>
+      <span class="value" id="bestVal">—</span>
+    </div>
+    <div class="tile">
+      <span class="label">Avg (5)</span>
+      <span class="value" id="avgVal">—</span>
+    </div>
+    <div class="tile">
+      <span class="label">Tries</span>
+      <span class="value" id="triesVal">0</span>
+    </div>
+  </div>
+
+  <div class="history" id="history"></div>
+
+  <!-- 광고 슬롯 1: 반응형 배너. 게임 결과를 확인한 직후, 조작 버튼과는 떨어진
+       위치라 실수 클릭 위험이 낮음. -->
+  <div class="ad-slab">
+    <ins class="adsbygoogle"
+         style="display:block;width:100%"
+         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+         data-ad-slot="0000000000"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </div>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+
+  <div class="leaderboard">
+    <div class="lb-head">
+      <span class="lb-title"><span class="lb-dot" id="lbDot"></span>전체 랭킹 TOP 20</span>
+      <input class="name-input" id="nameInput" maxlength="12" placeholder="닉네임" aria-label="랭킹에 표시할 닉네임">
+    </div>
+    <div class="lb-rows" id="lbRows">
+      <p class="lb-empty">랭킹을 불러오는 중...</p>
+    </div>
+  </div>
+
+  <footer>사람 평균 반응속도는 약 200–250ms · 일반인 상위 1%는 150ms 이하</footer>
+</div>
+
+<aside class="rail">
+  <!-- 광고 슬롯 2: 300×250 고정 크기. 900px 이상 데스크톱에서만 노출. -->
+  <div class="ad-slab rect">
+    <ins class="adsbygoogle"
+         style="display:inline-block;width:300px;height:250px"
+         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+         data-ad-slot="0000000000"></ins>
+  </div>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</aside>
+</div>
+
+<script>
+(function(){
+  const panel = document.getElementById('panel');
+  const bulbs = Array.from(document.querySelectorAll('.bulb'));
+  const statusWord = document.getElementById('statusWord');
+  const msValue = document.getElementById('msValue');
+  const msNumber = document.getElementById('msNumber');
+  const rankLine = document.getElementById('rankLine');
+  const mainBtn = document.getElementById('mainBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const bestVal = document.getElementById('bestVal');
+  const avgVal = document.getElementById('avgVal');
+  const triesVal = document.getElementById('triesVal');
+  const historyEl = document.getElementById('history');
+  const lbRows = document.getElementById('lbRows');
+  const lbDot = document.getElementById('lbDot');
+  const nameInput = document.getElementById('nameInput');
+
+  let state = 'idle'; // idle | arming | go | result | false
+  let armTimers = [];
+  let goAt = 0;
+  let lastMs = null;
+  let attempts = []; // {ms, isFalse}
+  let best = null;
+
+  try{
+    const saved = localStorage.getItem('lightsout_best');
+    if(saved) best = Number(saved);
+  }catch(e){}
+  renderStats();
+
+  // --- leaderboard (Supabase) ---
+  // TODO: supabase.com에서 프로젝트를 만들고 Project Settings > API에서
+  // 아래 두 값을 채워 넣으세요. leaderboard.sql을 SQL Editor에서 먼저 실행해야 합니다.
+  const SUPABASE_URL = 'https://kmdzmcvbdsxejxwccpxa.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttZHptY3ZiZHN4ZWp4d2NjcHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2MjEwOTMsImV4cCI6MjEwNDE5NzA5M30.i3UlghJ77qgq-WqZVZ_JyU_PL1zEVQiHgyK2esuzMnM';
+
+  let sb = null;
+  if(window.supabase && SUPABASE_URL.indexOf('YOUR_PROJECT') === -1){
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+
+  let myPid = null;
+  let myName = '';
+
+  function randomId(){
+    if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return 'p' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+  }
+  function randomName(){
+    return '드라이버' + Math.floor(1000 + Math.random()*9000);
+  }
+  try{
+    myPid = localStorage.getItem('lightsout_pid');
+    if(!myPid){ myPid = randomId(); localStorage.setItem('lightsout_pid', myPid); }
+    myName = localStorage.getItem('lightsout_name') || randomName();
+  }catch(e){
+    myPid = randomId();
+    myName = randomName();
+  }
+  nameInput.value = myName;
+
+  function escapeHtml(s){
+    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function renderLeaderboard(rows){
+    if(!rows || rows.length === 0){
+      lbRows.innerHTML = '<p class="lb-empty">아직 기록이 없어요. 첫 번째 주자가 되어보세요!</p>';
+      return;
+    }
+    const medal = ['gold','silver','bronze'];
+    lbRows.innerHTML = rows.map((r, i) => {
+      const isMe = r.id === myPid;
+      const rankCls = medal[i] ? ' ' + medal[i] : '';
+      const name = (r.name || '익명').toString().slice(0,12);
+      return `<div class="lb-row${isMe ? ' me' : ''}">`
+        + `<span class="lb-rank${rankCls}">${i+1}</span>`
+        + `<span class="lb-name">${escapeHtml(name)}${isMe ? ' (나)' : ''}</span>`
+        + `<span class="lb-ms">${r.ms}ms</span>`
+        + `</div>`;
+    }).join('');
+  }
+
+  async function fetchTop20(){
+    if(!sb) return;
+    const { data, error } = await sb
+      .from('leaderboard')
+      .select('id,name,ms')
+      .order('ms', { ascending: true })
+      .limit(20);
+    if(error) return;
+    renderLeaderboard(data);
+  }
+
+  async function upsertScore(ms){
+    if(!sb) return;
+    try{
+      await sb.from('leaderboard').upsert({
+        id: myPid,
+        name: myName,
+        ms: ms,
+        updated_at: new Date().toISOString()
+      });
+      fetchTop20();
+    }catch(e){}
+  }
+
+  nameInput.addEventListener('change', () => {
+    const v = nameInput.value.trim().slice(0,12) || randomName();
+    myName = v;
+    nameInput.value = v;
+    try{ localStorage.setItem('lightsout_name', myName); }catch(e){}
+    if(best !== null) upsertScore(best);
+  });
+
+  if(sb){
+    lbDot.classList.add('live');
+    fetchTop20();
+    sb.channel('leaderboard-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leaderboard' }, fetchTop20)
+      .subscribe();
+  } else {
+    lbRows.innerHTML = '<p class="lb-empty">랭킹 서버가 아직 연결되지 않았어요 (SUPABASE_URL/KEY 설정 필요)</p>';
+  }
+
+  function clearTimers(){
+    armTimers.forEach(t => clearTimeout(t));
+    armTimers = [];
+  }
+
+  function setPanelClass(cls){
+    panel.classList.remove('idle','arming','go','false-start');
+    panel.classList.add(cls);
+  }
+
+  function litCount(n){
+    bulbs.forEach((b,i) => b.classList.toggle('lit', i < n));
+  }
+
+  function getRank(ms){
+    if(ms < 150) return '프로게이머급! 상위 1%의 반응속도예요';
+    if(ms < 200) return '탁월해요 — 격투게임 프로 수준입니다';
+    if(ms < 250) return '훌륭해요, 평균보다 빠릅니다';
+    if(ms < 300) return '딱 평균 반응속도예요';
+    if(ms < 400) return '조금 느려요, 한 번 더 도전해보세요';
+    return '졸고 계셨나요? 😴';
+  }
+
+  function startRound(){
+    clearTimers();
+    lastMs = null;
+    state = 'arming';
+    setPanelClass('arming');
+    statusWord.textContent = '집중하세요...';
+    msValue.style.display = 'none';
+    rankLine.textContent = '';
+    copyBtn.style.display = 'none';
+    mainBtn.textContent = '준비 중';
+    litCount(0);
+
+    let lit = 0;
+    const lightNext = () => {
+      lit += 1;
+      litCount(lit);
+      if(lit < 5){
+        armTimers.push(setTimeout(lightNext, 500 + Math.random()*300));
+      } else {
+        const holdTime = 1000 + Math.random()*2200;
+        armTimers.push(setTimeout(goSignal, holdTime));
+      }
+    };
+    armTimers.push(setTimeout(lightNext, 600));
+  }
+
+  function goSignal(){
+    state = 'go';
+    setPanelClass('go');
+    litCount(0);
+    statusWord.textContent = '지금 클릭!';
+    goAt = performance.now();
+  }
+
+  function falseStart(){
+    clearTimers();
+    state = 'false';
+    setPanelClass('false-start');
+    litCount(0);
+    statusWord.textContent = '부정출발!';
+    msValue.style.display = 'none';
+    rankLine.textContent = '불이 완전히 꺼질 때까지 기다려주세요.';
+    mainBtn.textContent = '다시 시작';
+    copyBtn.style.display = 'none';
+    attempts.unshift({ms:null, isFalse:true});
+    attempts = attempts.slice(0,5);
+    renderHistory();
+    triesVal.textContent = String(countTries());
+  }
+
+  function registerResult(){
+    const ms = Math.round(performance.now() - goAt);
+    state = 'result';
+    setPanelClass('go');
+    lastMs = ms;
+    statusWord.textContent = '기록';
+    msValue.style.display = 'flex';
+    msNumber.textContent = String(ms);
+    rankLine.textContent = getRank(ms);
+    mainBtn.textContent = '다시 시작';
+    copyBtn.style.display = 'block';
+
+    attempts.unshift({ms, isFalse:false});
+    attempts = attempts.slice(0,5);
+    if(best === null || ms < best){
+      best = ms;
+      try{ localStorage.setItem('lightsout_best', String(best)); }catch(e){}
+      upsertScore(best);
+    }
+    triesVal.textContent = String(countTries());
+    renderStats();
+    renderHistory();
+  }
+
+  function countTries(){
+    try{
+      const n = Number(localStorage.getItem('lightsout_tries') || '0') + 1;
+      localStorage.setItem('lightsout_tries', String(n));
+      return n;
+    }catch(e){ return attempts.length; }
+  }
+
+  function renderStats(){
+    bestVal.textContent = best !== null ? best + 'ms' : '—';
+    const valid = attempts.filter(a => !a.isFalse).map(a => a.ms);
+    avgVal.textContent = valid.length ? Math.round(valid.reduce((a,b)=>a+b,0)/valid.length) + 'ms' : '—';
+    let tries = 0;
+    try{ tries = Number(localStorage.getItem('lightsout_tries') || '0'); }catch(e){}
+    triesVal.textContent = String(tries);
+  }
+
+  function renderHistory(){
+    historyEl.innerHTML = '';
+    attempts.forEach(a => {
+      const chip = document.createElement('span');
+      chip.className = 'chip' + (a.isFalse ? ' false' : '');
+      chip.textContent = a.isFalse ? '부정출발' : a.ms + 'ms';
+      historyEl.appendChild(chip);
+    });
+  }
+
+  function handleTrigger(){
+    if(state === 'idle' || state === 'result' || state === 'false'){
+      startRound();
+    } else if(state === 'arming'){
+      falseStart();
+    } else if(state === 'go'){
+      registerResult();
+    }
+  }
+
+  panel.addEventListener('click', handleTrigger);
+  panel.addEventListener('keydown', (e) => {
+    if(e.code === 'Space' || e.code === 'Enter'){ e.preventDefault(); handleTrigger(); }
+  });
+  mainBtn.addEventListener('click', (e) => { e.stopPropagation(); handleTrigger(); });
+
+  copyBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if(lastMs === null) return;
+    const text = `라이트 아웃 반응속도 테스트: ${lastMs}ms (${getRank(lastMs)})`;
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(text).then(() => {
+        const original = copyBtn.textContent;
+        copyBtn.textContent = '복사됨!';
+        setTimeout(() => { copyBtn.textContent = original; }, 1400);
+      }).catch(() => {});
+    }
+  });
+})();
+</script>
+</body>
+</html>
