@@ -7,21 +7,6 @@
 <meta name="description" content="F1 출발 신호를 본뜬 반응속도 테스트 게임. 5개의 빨간불이 꺼지는 순간 클릭해 나만의 기록을 세워보세요.">
 <meta name="google-adsense-account" content="ca-pub-6914149942050509">
 
-<!--
-  ============================================================
-  배포 전 체크리스트
-  ============================================================
-  1) [완료] 애드센스 발행자 ID 연결 (ca-pub-6914149942050509)
-  2) 아래 "data-ad-slot" 두 곳을, 애드센스 승인 후 만든 광고 단위 ID로 교체
-     (지금은 자리표시자라 광고 자리는 비어있게 나와요 - 정상)
-  3) [완료] SUPABASE_URL / SUPABASE_ANON_KEY 연결됨
-  4) [완료] Realtime 토글 켜짐
-  5) [완료] GitHub Pages 배포됨: https://jap-del.github.io/Right-Out/
-  6) 저장소 루트에 ads.txt 파일 추가 (같이 받은 ads.txt 파일을
-     index.html과 같은 위치에 업로드하면 됨)
-  7) 애드센스 콘솔에서 심사 요청 -> 보통 며칠~2주 소요
-  ============================================================
--->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -463,8 +448,6 @@
 
   <div class="history" id="history"></div>
 
-  <!-- 광고 슬롯 1: 반응형 배너. 게임 결과를 확인한 직후, 조작 버튼과는 떨어진
-       위치라 실수 클릭 위험이 낮음. -->
   <div class="ad-slab">
     <ins class="adsbygoogle"
          style="display:block;width:100%"
@@ -489,7 +472,7 @@
 </div>
 
 <aside class="rail">
-  <!-- 광고 슬롯 2: 300×250 고정 크기. 900px 이상 데스크톱에서만 노출. -->
+
   <div class="ad-slab rect">
     <ins class="adsbygoogle"
          style="display:inline-block;width:300px;height:250px"
@@ -531,9 +514,6 @@
   }catch(e){}
   renderStats();
 
-  // --- leaderboard (Supabase) ---
-  // TODO: supabase.com에서 프로젝트를 만들고 Project Settings > API에서
-  // 아래 두 값을 채워 넣으세요. leaderboard.sql을 SQL Editor에서 먼저 실행해야 합니다.
   const SUPABASE_URL = 'https://kmdzmcvbdsxejxwccpxa.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttZHptY3ZiZHN4ZWp4d2NjcHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2MjEwOTMsImV4cCI6MjEwNDE5NzA5M30.i3UlghJ77qgq-WqZVZ_JyU_PL1zEVQiHgyK2esuzMnM';
 
