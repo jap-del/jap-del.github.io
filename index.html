@@ -1,763 +1,915 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>라이트 아웃 — 반응속도 테스트</title>
-<meta name="description" content="F1 출발 신호를 본뜬 반응속도 테스트 게임. 5개의 빨간불이 꺼지는 순간 클릭해 나만의 기록을 세워보세요.">
-<meta name="google-adsense-account" content="ca-pub-6914149942050509">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>점프잇 - 심심할 때 한 판! 무료 미니게임</title>
+<meta name="description" content="장애물을 피해 점프하는 심플한 미니게임, 점프잇. 설치 없이 바로 즐기는 무료 브라우저 게임. 최고 기록에 도전해보세요!">
+<meta name="keywords" content="점프잇, 미니게임, 무료게임, 브라우저게임, 심심풀이게임, 캐주얼게임">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://jap-del.github.io/Jump-It/">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="점프잇 - 심심할 때 한 판!">
+<meta property="og:description" content="장애물을 피해 점프하는 심플한 미니게임. 지금 바로 플레이해보세요!">
+<meta property="og:url" content="https://jap-del.github.io/Jump-It/">
+<meta property="og:image" content="og-image.png">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
 
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
 <style>
   :root{
-    --asphalt-900:#0b0d10;
-    --asphalt-800:#14171c;
-    --track-line:#2a2f38;
-    --signal-red:#ff3535;
-    --signal-red-dim:#3a1414;
-    --signal-green:#17e88f;
-    --chalk:#eef1f4;
-    --chalk-dim:#8d97a1;
-    --gold:#ffb020;
+    --bg:#0f1020;
+    --panel:#181933;
+    --accent:#6c5ce7;
+    --accent2:#00d2ff;
+    --text:#f2f2f7;
+    --sub:#9a9ac0;
+    --ground:#2c2d55;
   }
-
-  *{ box-sizing:border-box; }
-
-  body{
-    background:var(--asphalt-900);
-    color:var(--chalk);
-    margin:0;
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:32px 16px;
-    font-family:"IBM Plex Sans KR","IBM Plex Sans",-apple-system,sans-serif;
-    background-image:
-      repeating-linear-gradient(135deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 2px, transparent 2px, transparent 26px);
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{
+    margin:0;padding:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",Roboto,sans-serif;
+    overscroll-behavior:none;
   }
-
-  .game-wrap{
-    position:relative;
-    width:100%;
-    max-width:460px;
-  }
-
-  .stage{
-    width:100%;
-    max-width:460px;
-    display:flex;
-    flex-direction:column;
-    gap:22px;
-    user-select:none;
-  }
-
-  .rail{
-    display:none;
-    flex-direction:column;
+  .app-grid{
+    max-width:1080px;margin:0 auto;padding:12px 12px 24px;
+    min-height:100dvh;
+    display:grid;
+    grid-template-columns:150px minmax(280px,640px) 210px;
+    grid-template-areas:"skins center rank";
     gap:12px;
-    position:absolute;
-    top:64px;
-    left:calc(100% + 24px);
-  }
-  @media (min-width:1200px){
-    .rail{ display:flex; }
-  }
-
-  .ad-slab{
-    width:100%;
-    display:flex;
+    align-items:start;
     justify-content:center;
-    min-height:100px;
-    overflow:hidden;
   }
-  .ad-slab.rect{ width:300px; min-height:250px; }
-
-  .masthead{
-    text-align:center;
-    display:flex;
-    flex-direction:column;
-    gap:6px;
+  .center-col{
+    grid-area:center;
+    display:flex;flex-direction:column;align-items:center;
+    min-width:0;
   }
-
-  .kicker{
-    font-family:"Chakra Petch",sans-serif;
-    font-size:12px;
-    font-weight:600;
-    letter-spacing:0.22em;
-    text-transform:uppercase;
-    color:var(--signal-red);
-  }
-
-  h1{
-    font-family:"Chakra Petch",sans-serif;
-    font-size:clamp(28px,7vw,36px);
-    font-weight:700;
-    letter-spacing:0.02em;
-    margin:0;
-    text-wrap:balance;
-  }
-
-  .sub{
-    color:var(--chalk-dim);
-    font-size:14px;
-    line-height:1.6;
-    margin:0;
-  }
-
   .panel{
-    background:var(--asphalt-800);
-    border:1px solid var(--track-line);
-    border-radius:18px;
-    padding:28px 24px 24px;
-    display:flex;
-    flex-direction:column;
-    gap:22px;
-    cursor:pointer;
-    transition:border-color 0.15s ease, transform 0.05s ease;
-    position:relative;
-    overflow:hidden;
+    background:var(--panel);border-radius:14px;padding:14px;
+    border:1px solid rgba(255,255,255,0.06);
   }
-  .panel:focus-visible{
-    outline:2px solid var(--signal-green);
-    outline-offset:3px;
-  }
-  .panel.false-start{ border-color:var(--signal-red); }
-  .panel.go{ background:#0e2019; border-color:var(--signal-green); }
-  .panel.idle{ cursor:default; }
+  .panel h3{margin:0 0 10px;font-size:12px;color:var(--sub);font-weight:700;letter-spacing:0.3px;text-transform:uppercase;}
 
-  .lights{
-    display:flex;
-    justify-content:center;
-    gap:14px;
-    padding:16px;
-    background:var(--asphalt-900);
-    border-radius:12px;
-    border:1px solid var(--track-line);
+  .skin-panel{grid-area:skins;}
+  .skin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .skin-swatch{
+    aspect-ratio:1;border-radius:12px;border:2px solid transparent;cursor:pointer;
+    background:linear-gradient(135deg,var(--c1),var(--c2));
+    display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;
+    transition:transform .12s;
   }
+  .skin-swatch span{font-size:10px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.6);font-weight:700;}
+  .skin-swatch:active{transform:scale(0.94);}
+  .skin-swatch.selected{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,0.25);}
 
-  .bulb{
-    width:38px;
-    height:38px;
-    border-radius:50%;
-    background:var(--signal-red-dim);
-    border:1px solid #2a1414;
-    transition:background 0.08s ease, box-shadow 0.08s ease;
+  .side-panel{grid-area:rank;display:flex;flex-direction:column;gap:16px;}
+  .my-best{font-size:13px;color:var(--sub);margin-bottom:8px;}
+  .my-best strong{color:var(--text);font-size:16px;}
+  .history-list,.rank-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px;}
+  .history-list li,.rank-list li{
+    display:flex;align-items:center;justify-content:space-between;gap:6px;
+    font-size:12px;background:rgba(255,255,255,0.03);border-radius:8px;padding:6px 8px;
   }
-  .bulb.lit{
-    background:var(--signal-red);
-    box-shadow:0 0 18px 4px rgba(255,53,53,0.55);
+  .history-list li .hist-date{color:var(--sub);font-size:11px;}
+  .rank-list li{justify-content:flex-start;}
+  .rank-list .rank-no{
+    width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.08);
+    display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;
   }
+  .rank-list .rank-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .rank-list .rank-score{font-variant-numeric:tabular-nums;color:var(--accent2);font-weight:700;}
+  .rank-list li.me{background:rgba(108,92,231,0.18);border:1px solid rgba(108,92,231,0.4);}
+  .history-list li.empty,.rank-list li.empty{color:var(--sub);justify-content:center;}
+  .rank-register{display:flex;gap:6px;margin-bottom:8px;}
+  .rank-register input{
+    flex:1;min-width:0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+    border-radius:8px;padding:7px 9px;color:var(--text);font-size:12px;
+  }
+  .rank-register input::placeholder{color:var(--sub);}
+  .btn.small{padding:7px 12px;font-size:11px;margin-top:0;box-shadow:none;white-space:nowrap;}
+  .rank-msg{font-size:11px;color:var(--sub);margin:0 0 8px;line-height:1.5;}
 
-  .readout{
-    text-align:center;
-    display:flex;
-    flex-direction:column;
-    gap:4px;
-    min-height:96px;
-    align-items:center;
-    justify-content:center;
-  }
-
-  .status-word{
-    font-family:"Chakra Petch",sans-serif;
-    font-size:15px;
-    font-weight:600;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    color:var(--chalk-dim);
-  }
-  .go .status-word{ color:var(--signal-green); }
-  .false-start .status-word{ color:var(--signal-red); }
-
-  .ms-value{
-    font-family:"Chakra Petch",sans-serif;
-    font-size:54px;
-    font-weight:700;
-    font-variant-numeric:tabular-nums;
-    line-height:1.1;
-  }
-  .ms-value .unit{
-    font-size:20px;
-    font-weight:600;
-    color:var(--chalk-dim);
-    margin-left:4px;
+  @media (max-width:700px){
+    .app-grid{
+      grid-template-columns:1fr;
+      grid-template-areas:"center" "skins" "rank";
+      max-width:640px;
+    }
+    .skin-grid{grid-template-columns:repeat(4,1fr);}
+    .side-panel{flex-direction:row;flex-wrap:wrap;}
+    .side-panel > div{flex:1;min-width:220px;}
   }
 
-  .rank-line{
-    font-size:13px;
-    color:var(--chalk-dim);
-    max-width:320px;
-  }
+  header{width:100%;text-align:center;padding:8px 0 4px;}
+  h1{font-size:22px;margin:0 0 2px;letter-spacing:-0.5px;
+     background:linear-gradient(90deg,var(--accent),var(--accent2));
+     -webkit-background-clip:text;background-clip:text;color:transparent;}
+  .tagline{font-size:12px;color:var(--sub);margin:0;}
 
-  .cta-row{ display:flex; gap:10px; }
+  .ad-slot{
+    width:100%;max-width:728px;margin:10px auto;
+    min-height:90px;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.08);
+    border-radius:8px;overflow:hidden;font-size:11px;color:var(--sub);
+  }
+  .ad-slot.bottom{min-height:100px;}
+  .ad-label{position:absolute;font-size:9px;color:var(--sub);opacity:0.5;}
 
-  button.primary{
-    flex:1;
-    font-family:"Chakra Petch",sans-serif;
-    font-size:15px;
-    font-weight:600;
-    letter-spacing:0.04em;
-    text-transform:uppercase;
-    background:var(--signal-green);
-    color:#052018;
-    border:none;
-    border-radius:10px;
-    padding:14px;
-    cursor:pointer;
-    transition:filter 0.12s ease, transform 0.05s ease;
+  .game-container{
+    position:relative;width:100%;max-width:640px;
+    border-radius:16px;overflow:hidden;
+    background:linear-gradient(180deg,#1b1c3a 0%,#12132a 60%,var(--ground) 100%);
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+    touch-action:manipulation;
+    aspect-ratio: 16 / 9;
   }
-  button.primary:hover{ filter:brightness(1.08); }
-  button.primary:active{ transform:translateY(1px); }
-  button.primary:focus-visible{ outline:2px solid var(--chalk); outline-offset:2px; }
+  canvas{display:block;width:100%;height:100%;}
 
-  button.ghost{
-    font-family:"IBM Plex Sans KR",sans-serif;
-    font-size:13px;
-    font-weight:500;
-    background:transparent;
-    color:var(--chalk-dim);
-    border:1px solid var(--track-line);
-    border-radius:10px;
-    padding:14px 16px;
-    cursor:pointer;
-    transition:border-color 0.12s ease, color 0.12s ease;
+  .hud{
+    position:absolute;top:10px;left:0;right:0;
+    display:flex;justify-content:space-between;padding:0 14px;
+    font-variant-numeric:tabular-nums;pointer-events:none;
   }
-  button.ghost:hover{ border-color:var(--chalk-dim); color:var(--chalk); }
+  .hud .score{font-size:22px;font-weight:700;}
+  .hud-right{display:flex;align-items:center;gap:8px;}
+  .hud .best{font-size:13px;color:var(--sub);}
+  .mute-btn{
+    pointer-events:auto;
+    width:28px;height:28px;border-radius:50%;border:none;
+    background:rgba(255,255,255,0.1);color:var(--text);
+    font-size:14px;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    padding:0;
+  }
+  .mute-btn:active{transform:scale(0.92);}
 
-  .stats{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:10px;
+  .overlay{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:10px;
+    background:rgba(10,10,25,0.55);backdrop-filter:blur(2px);
+    text-align:center;padding:20px;
   }
-  .tile{
-    background:var(--asphalt-800);
-    border:1px solid var(--track-line);
-    border-radius:12px;
-    padding:12px 8px;
-    text-align:center;
-    display:flex;
-    flex-direction:column;
-    gap:4px;
+  .overlay h2{margin:0;font-size:24px;}
+  .overlay p{margin:0;color:var(--sub);font-size:13px;line-height:1.6;}
+  .overlay .final-score{font-size:40px;font-weight:800;margin:4px 0;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;}
+  .btn{
+    margin-top:6px;padding:12px 28px;border:none;border-radius:999px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    color:#0f1020;font-weight:700;font-size:15px;cursor:pointer;
+    box-shadow:0 6px 16px rgba(108,92,231,0.4);
   }
-  .tile .label{
-    font-family:"Chakra Petch",sans-serif;
-    font-size:10px;
-    font-weight:600;
-    letter-spacing:0.14em;
-    text-transform:uppercase;
-    color:var(--chalk-dim);
+  .btn:active{transform:scale(0.97);}
+  .btn.ghost{
+    background:transparent;color:var(--text);
+    box-shadow:none;border:1px solid rgba(255,255,255,0.18);
   }
-  .tile .value{
-    font-family:"Chakra Petch",sans-serif;
-    font-size:20px;
-    font-weight:700;
-    font-variant-numeric:tabular-nums;
-  }
-  .tile.best .value{ color:var(--gold); }
+  .over-btn-row{display:flex;gap:10px;margin-top:6px;}
+  .over-btn-row .btn{margin-top:0;}
+  .hidden{display:none !important;}
 
-  .history{
-    display:flex;
-    gap:6px;
-    flex-wrap:wrap;
-    justify-content:center;
+  .controls-hint{
+    margin-top:10px;font-size:12px;color:var(--sub);text-align:center;
   }
-  .chip{
-    font-family:"Chakra Petch",sans-serif;
-    font-size:11px;
-    font-weight:600;
-    font-variant-numeric:tabular-nums;
-    background:var(--asphalt-800);
-    border:1px solid var(--track-line);
-    border-radius:999px;
-    padding:5px 10px;
-    color:var(--chalk-dim);
-  }
-  .chip.false{ color:var(--signal-red); border-color:rgba(255,53,53,0.35); }
-
-  .leaderboard{
-    background:var(--asphalt-800);
-    border:1px solid var(--track-line);
-    border-radius:14px;
-    padding:16px;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-  }
-  .lb-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
-  .lb-title{
-    font-family:"Chakra Petch",sans-serif;
-    font-size:11px;
-    font-weight:600;
-    letter-spacing:0.16em;
-    text-transform:uppercase;
-    color:var(--chalk-dim);
-    display:flex;
-    align-items:center;
-    gap:6px;
-  }
-  .lb-dot{
-    width:6px;
-    height:6px;
-    border-radius:50%;
-    background:var(--chalk-dim);
-  }
-  .lb-dot.live{
-    background:var(--signal-green);
-    box-shadow:0 0 6px 1px rgba(23,232,143,0.7);
-  }
-  .name-input{
-    font-family:"IBM Plex Sans KR",sans-serif;
-    font-size:12px;
-    font-weight:500;
-    background:var(--asphalt-900);
-    color:var(--chalk);
-    border:1px solid var(--track-line);
-    border-radius:8px;
-    padding:6px 10px;
-    width:120px;
-    text-align:right;
-  }
-  .name-input:focus-visible{
-    outline:2px solid var(--signal-green);
-    outline-offset:1px;
-  }
-  .lb-rows{
-    display:flex;
-    flex-direction:column;
-    gap:2px;
-    max-height:260px;
-    overflow-y:auto;
-  }
-  .lb-row{
-    display:grid;
-    grid-template-columns:28px 1fr auto;
-    align-items:center;
-    gap:10px;
-    padding:8px 6px;
-    border-radius:8px;
-    font-size:13px;
-  }
-  .lb-row.me{
-    background:rgba(23,232,143,0.08);
-    border:1px solid rgba(23,232,143,0.3);
-  }
-  .lb-rank{
-    font-family:"Chakra Petch",sans-serif;
-    font-weight:700;
-    font-variant-numeric:tabular-nums;
-    color:var(--chalk-dim);
-    text-align:center;
-  }
-  .lb-rank.gold{ color:#ffd35c; }
-  .lb-rank.silver{ color:#d7dde3; }
-  .lb-rank.bronze{ color:#e0a35f; }
-  .lb-name{
-    color:var(--chalk);
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-  .lb-ms{
-    font-family:"Chakra Petch",sans-serif;
-    font-weight:700;
-    font-variant-numeric:tabular-nums;
-    color:var(--chalk);
-  }
-  .lb-empty{
-    font-size:12px;
-    color:var(--chalk-dim);
-    text-align:center;
-    padding:12px 0;
+  .controls-hint kbd{
+    background:var(--panel);padding:2px 6px;border-radius:4px;font-size:11px;
   }
 
   footer{
-    text-align:center;
-    font-size:11px;
-    color:var(--chalk-dim);
-    opacity:0.6;
+    margin-top:20px;font-size:11px;color:var(--sub);text-align:center;line-height:1.8;
   }
+  footer a{color:var(--sub);}
 
-  @keyframes shake{
-    0%,100%{ transform:translateX(0); }
-    25%{ transform:translateX(-6px); }
-    75%{ transform:translateX(6px); }
-  }
-  .panel.false-start{ animation:shake 0.28s ease; }
-
-  @media (prefers-reduced-motion: reduce){
-    .panel.false-start{ animation:none; }
-    *{ transition-duration:0.001ms !important; }
+  @media (max-width:480px){
+    h1{font-size:19px;}
+    .hud .score{font-size:18px;}
   }
 </style>
 </head>
 <body>
+<div class="app-grid">
 
-<div class="game-wrap">
-<div class="stage">
-  <div class="masthead">
-    <span class="kicker">Reaction Time Trainer</span>
-    <h1>라이트 아웃</h1>
-    <p class="sub">F1 스타트처럼 5개의 빨간불이 켜졌다 <strong>한번에 꺼지는 순간</strong> 클릭하세요. 너무 일찍 누르면 부정출발입니다.</p>
-  </div>
-
-  <div class="panel idle" id="panel" tabindex="0" role="button" aria-label="반응속도 테스트 시작">
-    <div class="lights" id="lights">
-      <div class="bulb"></div>
-      <div class="bulb"></div>
-      <div class="bulb"></div>
-      <div class="bulb"></div>
-      <div class="bulb"></div>
+  <aside class="panel skin-panel">
+    <h3>스킨 선택</h3>
+    <div class="skin-grid" id="skinGrid">
+      <button class="skin-swatch" data-skin="0" style="--c1:#00d2ff;--c2:#6c5ce7"><span>오션</span></button>
+      <button class="skin-swatch" data-skin="1" style="--c1:#ff9f43;--c2:#ee5253"><span>선셋</span></button>
+      <button class="skin-swatch" data-skin="2" style="--c1:#26de81;--c2:#0fb9b1"><span>라임</span></button>
+      <button class="skin-swatch" data-skin="3" style="--c1:#fd79a8;--c2:#a55eea"><span>핑크</span></button>
     </div>
+  </aside>
 
-    <div class="readout">
-      <span class="status-word" id="statusWord">시작할 준비가 되면 아래 버튼을 누르세요</span>
-      <div class="ms-value" id="msValue" style="display:none;"><span id="msNumber">0</span><span class="unit">ms</span></div>
-      <p class="rank-line" id="rankLine"></p>
-    </div>
-  </div>
+  <div class="center-col">
+  <header>
+    <h1>점프잇 JUMP IT</h1>
+    <p class="tagline">스페이스바 또는 화면 탭으로 점프! 장애물을 피해보세요</p>
+  </header>
 
-  <div class="cta-row">
-    <button class="primary" id="mainBtn">시작</button>
-    <button class="ghost" id="copyBtn" style="display:none;">결과 복사</button>
-  </div>
-
-  <div class="stats">
-    <div class="tile best">
-      <span class="label">Best</span>
-      <span class="value" id="bestVal">—</span>
-    </div>
-    <div class="tile">
-      <span class="label">Avg (5)</span>
-      <span class="value" id="avgVal">—</span>
-    </div>
-    <div class="tile">
-      <span class="label">Tries</span>
-      <span class="value" id="triesVal">0</span>
-    </div>
-  </div>
-
-  <div class="history" id="history"></div>
-
-  <div class="ad-slab">
+  <div class="ad-slot top">
     <ins class="adsbygoogle"
          style="display:block;width:100%"
          data-ad-client="ca-pub-6914149942050509"
-         data-ad-slot="0000000000"
+         data-ad-slot="3108753297"
          data-ad-format="auto"
          data-full-width-responsive="true"></ins>
   </div>
-  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 
-  <div class="leaderboard">
-    <div class="lb-head">
-      <span class="lb-title"><span class="lb-dot" id="lbDot"></span>전체 랭킹 TOP 20</span>
-      <input class="name-input" id="nameInput" maxlength="12" placeholder="닉네임" aria-label="랭킹에 표시할 닉네임">
+  <div class="game-container" id="gameContainer">
+    <canvas id="game"></canvas>
+    <div class="hud">
+      <div class="score" id="scoreEl">0</div>
+      <div class="hud-right">
+        <button class="mute-btn" id="muteBtn" aria-label="음소거 전환" title="음소거 전환">🔊</button>
+        <div class="best" id="bestEl">BEST 0.00</div>
+      </div>
     </div>
-    <div class="lb-rows" id="lbRows">
-      <p class="lb-empty">랭킹을 불러오는 중...</p>
+
+    <div class="overlay" id="startOverlay">
+      <h2>점프잇</h2>
+      <p>탭하거나 스페이스바를 눌러 시작하세요<br>장애물에 닿으면 게임이 끝나요</p>
+      <button class="btn" id="startBtn">게임 시작</button>
+    </div>
+
+    <div class="overlay hidden" id="overOverlay">
+      <h2>게임 종료</h2>
+      <div class="final-score" id="finalScoreEl">0</div>
+      <p id="newBestMsg" class="hidden">🎉 신기록 달성!</p>
+      <div class="over-btn-row">
+        <button class="btn" id="retryBtn">다시 도전</button>
+        <button class="btn ghost" id="shareBtn">결과 공유</button>
+      </div>
     </div>
   </div>
 
-  <footer>사람 평균 반응속도는 약 200–250ms · 일반인 상위 1%는 150ms 이하</footer>
-</div>
+  <p class="controls-hint">
+    PC: <kbd>Space</kbd> 또는 <kbd>↑</kbd> 로 점프 &nbsp;|&nbsp; 모바일: 화면 탭
+  </p>
 
-<aside class="rail">
-
-  <div class="ad-slab rect">
+  <div class="ad-slot bottom">
     <ins class="adsbygoogle"
-         style="display:inline-block;width:300px;height:250px"
+         style="display:block;width:100%"
          data-ad-client="ca-pub-6914149942050509"
-         data-ad-slot="0000000000"></ins>
+         data-ad-slot="6269113577"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
   </div>
-  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</aside>
+
+  <footer>
+    심심할 때 한 판, 점프잇 &copy; 2026 &nbsp;|&nbsp; <a href="privacy.html">개인정보처리방침</a>
+  </footer>
+  </div>
+
+  <aside class="panel side-panel">
+    <div>
+      <h3>내 기록</h3>
+      <div class="my-best" id="myBestEl">최고 <strong>0.00</strong></div>
+      <ul class="history-list" id="historyList"></ul>
+    </div>
+    <div>
+      <h3>실시간 랭킹 TOP 10</h3>
+      <div class="rank-register">
+        <input type="text" id="nicknameInput" maxlength="8" placeholder="닉네임 (최대 8자)">
+        <button class="btn small" id="registerBtn">등록</button>
+      </div>
+      <p class="rank-msg" id="rankMsg"></p>
+      <ol class="rank-list" id="rankList"></ol>
+    </div>
+  </aside>
+
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 (function(){
-  const panel = document.getElementById('panel');
-  const bulbs = Array.from(document.querySelectorAll('.bulb'));
-  const statusWord = document.getElementById('statusWord');
-  const msValue = document.getElementById('msValue');
-  const msNumber = document.getElementById('msNumber');
-  const rankLine = document.getElementById('rankLine');
-  const mainBtn = document.getElementById('mainBtn');
-  const copyBtn = document.getElementById('copyBtn');
-  const bestVal = document.getElementById('bestVal');
-  const avgVal = document.getElementById('avgVal');
-  const triesVal = document.getElementById('triesVal');
-  const historyEl = document.getElementById('history');
-  const lbRows = document.getElementById('lbRows');
-  const lbDot = document.getElementById('lbDot');
-  const nameInput = document.getElementById('nameInput');
-
-  let state = 'idle'; // idle | arming | go | result | false
-  let armTimers = [];
-  let goAt = 0;
-  let lastMs = null;
-  let attempts = []; // {ms, isFalse}
-  let best = null;
+  "use strict";
 
   try{
-    const saved = localStorage.getItem('lightsout_best');
-    if(saved) best = Number(saved);
+    (window.adsbygoogle = window.adsbygoogle || []).push({});
+    (window.adsbygoogle = window.adsbygoogle || []).push({});
   }catch(e){}
-  renderStats();
 
-  const SUPABASE_URL = 'https://kmdzmcvbdsxejxwccpxa.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttZHptY3ZiZHN4ZWp4d2NjcHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2MjEwOTMsImV4cCI6MjEwNDE5NzA5M30.i3UlghJ77qgq-WqZVZ_JyU_PL1zEVQiHgyK2esuzMnM';
+  var MUTE_KEY = 'jumpit_muted';
+  var audio = {
+    ctx: null,
+    master: null,
+    bgmGain: null,
+    sfxGain: null,
+    muted: localStorage.getItem(MUTE_KEY) === '1',
+    playing: false,
+    timerId: null,
+    nextNoteTime: 0,
+    step: 0,
+    tempo: 132,
+    lead: [523.25, 659.25, 783.99, 659.25, 523.25, 659.25, 587.33, 493.88],
+    bass: [130.81, null, 196.00, null, 130.81, null, 164.81, null]
+  };
+  var muteBtn = document.getElementById('muteBtn');
+  muteBtn.textContent = audio.muted ? '🔇' : '🔊';
 
-  let sb = null;
-  if(window.supabase && SUPABASE_URL.indexOf('YOUR_PROJECT') === -1){
-    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  function initAudio(){
+    if(audio.ctx) return;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return;
+    audio.ctx = new AC();
+    audio.master = audio.ctx.createGain();
+    audio.master.gain.value = audio.muted ? 0 : 1;
+    audio.master.connect(audio.ctx.destination);
+
+    audio.bgmGain = audio.ctx.createGain();
+    audio.bgmGain.gain.value = 0.05;
+    audio.bgmGain.connect(audio.master);
+
+    audio.sfxGain = audio.ctx.createGain();
+    audio.sfxGain.gain.value = 0.22;
+    audio.sfxGain.connect(audio.master);
   }
 
-  let myPid = null;
-  let myName = '';
-
-  function randomId(){
-    if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
-    return 'p' + Math.random().toString(36).slice(2) + Date.now().toString(36);
-  }
-  function randomName(){
-    return '드라이버' + Math.floor(1000 + Math.random()*9000);
-  }
-  try{
-    myPid = localStorage.getItem('lightsout_pid');
-    if(!myPid){ myPid = randomId(); localStorage.setItem('lightsout_pid', myPid); }
-    myName = localStorage.getItem('lightsout_name') || randomName();
-  }catch(e){
-    myPid = randomId();
-    myName = randomName();
-  }
-  nameInput.value = myName;
-
-  function escapeHtml(s){
-    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function toggleMute(){
+    audio.muted = !audio.muted;
+    localStorage.setItem(MUTE_KEY, audio.muted ? '1' : '0');
+    muteBtn.textContent = audio.muted ? '🔇' : '🔊';
+    if(audio.master) audio.master.gain.setTargetAtTime(audio.muted ? 0 : 1, audio.ctx.currentTime, 0.05);
+    if(audio.ctx && audio.ctx.state === 'suspended') audio.ctx.resume();
   }
 
-  function renderLeaderboard(rows){
-    if(!rows || rows.length === 0){
-      lbRows.innerHTML = '<p class="lb-empty">아직 기록이 없어요. 첫 번째 주자가 되어보세요!</p>';
-      return;
+  function playTone(time, freq, dur, type, dest, vol){
+    var osc = audio.ctx.createOscillator();
+    var g = audio.ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, time);
+    g.gain.setValueAtTime(0, time);
+    g.gain.linearRampToValueAtTime(vol, time + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.001, time + dur);
+    osc.connect(g);
+    g.connect(dest);
+    osc.start(time);
+    osc.stop(time + dur + 0.02);
+  }
+
+  function bgmScheduleStep(time){
+    var leadFreq = audio.lead[audio.step % audio.lead.length];
+    playTone(time, leadFreq, 0.16, 'triangle', audio.bgmGain, 0.6);
+    var bassFreq = audio.bass[audio.step % audio.bass.length];
+    if(bassFreq) playTone(time, bassFreq, 0.28, 'sine', audio.bgmGain, 0.8);
+    audio.step++;
+  }
+
+  function bgmScheduler(){
+    if(!audio.playing) return;
+    var scheduleAhead = 0.12;
+    while(audio.nextNoteTime < audio.ctx.currentTime + scheduleAhead){
+      bgmScheduleStep(audio.nextNoteTime);
+      audio.nextNoteTime += (60 / audio.tempo) / 2;
     }
-    const medal = ['gold','silver','bronze'];
-    lbRows.innerHTML = rows.map((r, i) => {
-      const isMe = r.id === myPid;
-      const rankCls = medal[i] ? ' ' + medal[i] : '';
-      const name = (r.name || '익명').toString().slice(0,12);
-      return `<div class="lb-row${isMe ? ' me' : ''}">`
-        + `<span class="lb-rank${rankCls}">${i+1}</span>`
-        + `<span class="lb-name">${escapeHtml(name)}${isMe ? ' (나)' : ''}</span>`
-        + `<span class="lb-ms">${r.ms}ms</span>`
-        + `</div>`;
-    }).join('');
+    audio.timerId = setTimeout(bgmScheduler, 25);
   }
 
-  async function fetchTop20(){
-    if(!sb) return;
-    const { data, error } = await sb
-      .from('leaderboard')
-      .select('id,name,ms')
-      .order('ms', { ascending: true })
-      .limit(20);
-    if(error) return;
-    renderLeaderboard(data);
+  function startBgm(){
+    if(!audio.ctx || audio.playing) return;
+    if(audio.ctx.state === 'suspended') audio.ctx.resume();
+    audio.playing = true;
+    audio.step = 0;
+    audio.nextNoteTime = audio.ctx.currentTime + 0.05;
+    bgmScheduler();
   }
 
-  async function upsertScore(ms){
-    if(!sb) return;
-    try{
-      await sb.from('leaderboard').upsert({
-        id: myPid,
-        name: myName,
-        ms: ms,
-        updated_at: new Date().toISOString()
-      });
-      fetchTop20();
-    }catch(e){}
+  function stopBgm(){
+    audio.playing = false;
+    if(audio.timerId){ clearTimeout(audio.timerId); audio.timerId = null; }
   }
 
-  nameInput.addEventListener('change', () => {
-    const v = nameInput.value.trim().slice(0,12) || randomName();
-    myName = v;
-    nameInput.value = v;
-    try{ localStorage.setItem('lightsout_name', myName); }catch(e){}
-    if(best !== null) upsertScore(best);
-  });
-
-  if(sb){
-    lbDot.classList.add('live');
-    fetchTop20();
-    sb.channel('leaderboard-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'leaderboard' }, fetchTop20)
-      .subscribe();
-  } else {
-    lbRows.innerHTML = '<p class="lb-empty">랭킹 서버가 아직 연결되지 않았어요 (SUPABASE_URL/KEY 설정 필요)</p>';
+  function playJumpSfx(){
+    if(!audio.ctx) return;
+    var t = audio.ctx.currentTime;
+    var osc = audio.ctx.createOscillator();
+    var g = audio.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(320, t);
+    osc.frequency.exponentialRampToValueAtTime(700, t + 0.1);
+    g.gain.setValueAtTime(0.24, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
+    osc.connect(g);
+    g.connect(audio.sfxGain);
+    osc.start(t);
+    osc.stop(t + 0.15);
   }
 
-  function clearTimers(){
-    armTimers.forEach(t => clearTimeout(t));
-    armTimers = [];
-  }
-
-  function setPanelClass(cls){
-    panel.classList.remove('idle','arming','go','false-start');
-    panel.classList.add(cls);
-  }
-
-  function litCount(n){
-    bulbs.forEach((b,i) => b.classList.toggle('lit', i < n));
-  }
-
-  function getRank(ms){
-    if(ms < 150) return '프로게이머급! 상위 1%의 반응속도예요';
-    if(ms < 200) return '탁월해요 — 격투게임 프로 수준입니다';
-    if(ms < 250) return '훌륭해요, 평균보다 빠릅니다';
-    if(ms < 300) return '딱 평균 반응속도예요';
-    if(ms < 400) return '조금 느려요, 한 번 더 도전해보세요';
-    return '졸고 계셨나요? 😴';
-  }
-
-  function startRound(){
-    clearTimers();
-    lastMs = null;
-    state = 'arming';
-    setPanelClass('arming');
-    statusWord.textContent = '집중하세요...';
-    msValue.style.display = 'none';
-    rankLine.textContent = '';
-    copyBtn.style.display = 'none';
-    mainBtn.textContent = '준비 중';
-    litCount(0);
-
-    let lit = 0;
-    const lightNext = () => {
-      lit += 1;
-      litCount(lit);
-      if(lit < 5){
-        armTimers.push(setTimeout(lightNext, 500 + Math.random()*300));
-      } else {
-        const holdTime = 1000 + Math.random()*2200;
-        armTimers.push(setTimeout(goSignal, holdTime));
-      }
-    };
-    armTimers.push(setTimeout(lightNext, 600));
-  }
-
-  function goSignal(){
-    state = 'go';
-    setPanelClass('go');
-    litCount(0);
-    statusWord.textContent = '지금 클릭!';
-    goAt = performance.now();
-  }
-
-  function falseStart(){
-    clearTimers();
-    state = 'false';
-    setPanelClass('false-start');
-    litCount(0);
-    statusWord.textContent = '부정출발!';
-    msValue.style.display = 'none';
-    rankLine.textContent = '불이 완전히 꺼질 때까지 기다려주세요.';
-    mainBtn.textContent = '다시 시작';
-    copyBtn.style.display = 'none';
-    attempts.unshift({ms:null, isFalse:true});
-    attempts = attempts.slice(0,5);
-    renderHistory();
-    triesVal.textContent = String(countTries());
-  }
-
-  function registerResult(){
-    const ms = Math.round(performance.now() - goAt);
-    state = 'result';
-    setPanelClass('go');
-    lastMs = ms;
-    statusWord.textContent = '기록';
-    msValue.style.display = 'flex';
-    msNumber.textContent = String(ms);
-    rankLine.textContent = getRank(ms);
-    mainBtn.textContent = '다시 시작';
-    copyBtn.style.display = 'block';
-
-    attempts.unshift({ms, isFalse:false});
-    attempts = attempts.slice(0,5);
-    if(best === null || ms < best){
-      best = ms;
-      try{ localStorage.setItem('lightsout_best', String(best)); }catch(e){}
-      upsertScore(best);
-    }
-    triesVal.textContent = String(countTries());
-    renderStats();
-    renderHistory();
-  }
-
-  function countTries(){
-    try{
-      const n = Number(localStorage.getItem('lightsout_tries') || '0') + 1;
-      localStorage.setItem('lightsout_tries', String(n));
-      return n;
-    }catch(e){ return attempts.length; }
-  }
-
-  function renderStats(){
-    bestVal.textContent = best !== null ? best + 'ms' : '—';
-    const valid = attempts.filter(a => !a.isFalse).map(a => a.ms);
-    avgVal.textContent = valid.length ? Math.round(valid.reduce((a,b)=>a+b,0)/valid.length) + 'ms' : '—';
-    let tries = 0;
-    try{ tries = Number(localStorage.getItem('lightsout_tries') || '0'); }catch(e){}
-    triesVal.textContent = String(tries);
-  }
-
-  function renderHistory(){
-    historyEl.innerHTML = '';
-    attempts.forEach(a => {
-      const chip = document.createElement('span');
-      chip.className = 'chip' + (a.isFalse ? ' false' : '');
-      chip.textContent = a.isFalse ? '부정출발' : a.ms + 'ms';
-      historyEl.appendChild(chip);
+  function playGameOverSfx(){
+    if(!audio.ctx) return;
+    var t = audio.ctx.currentTime;
+    [392, 311.13, 261.63].forEach(function(freq, i){
+      var start = t + i * 0.11;
+      var osc = audio.ctx.createOscillator();
+      var g = audio.ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq, start);
+      g.gain.setValueAtTime(0.18, start);
+      g.gain.exponentialRampToValueAtTime(0.001, start + 0.2);
+      osc.connect(g);
+      g.connect(audio.sfxGain);
+      osc.start(start);
+      osc.stop(start + 0.22);
     });
   }
 
-  function handleTrigger(){
-    if(state === 'idle' || state === 'result' || state === 'false'){
-      startRound();
-    } else if(state === 'arming'){
-      falseStart();
-    } else if(state === 'go'){
-      registerResult();
+  var canvas = document.getElementById('game');
+  var ctx = canvas.getContext('2d', { alpha:false });
+  var container = document.getElementById('gameContainer');
+  var scoreEl = document.getElementById('scoreEl');
+  var bestEl = document.getElementById('bestEl');
+  var startOverlay = document.getElementById('startOverlay');
+  var overOverlay = document.getElementById('overOverlay');
+  var finalScoreEl = document.getElementById('finalScoreEl');
+  var newBestMsg = document.getElementById('newBestMsg');
+  var startBtn = document.getElementById('startBtn');
+  var retryBtn = document.getElementById('retryBtn');
+  var shareBtn = document.getElementById('shareBtn');
+
+  var DPR = Math.min(window.devicePixelRatio || 1, 2);
+  var W = 0, H = 0;
+
+  function resize(){
+    var rect = container.getBoundingClientRect();
+    W = rect.width;
+    H = rect.height;
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  var STORAGE_KEY = 'jumpit_best_score';
+  var best = parseFloat(localStorage.getItem(STORAGE_KEY) || '0');
+  bestEl.textContent = 'BEST ' + best.toFixed(2);
+
+  var state = 'idle';
+  var groundY, player, obstacles, particles;
+  var speed, gravity, score, elapsed, spawnTimer, spawnInterval;
+  var shakeT = 0;
+
+  function initGame(){
+    groundY = H * 0.82;
+    player = {
+      x: W * 0.16,
+      y: groundY,
+      w: Math.max(28, H*0.11),
+      h: Math.max(28, H*0.11),
+      vy: 0,
+      onGround: true,
+      jumpsLeft: 2,
+      rot: 0
+    };
+    obstacles = [];
+    particles = [];
+    speed = W * 0.42;
+    gravity = H * 3.3;
+    score = 0;
+    elapsed = 0;
+    spawnTimer = 0;
+    spawnInterval = 1.3;
+    shakeT = 0;
+  }
+
+  function jump(){
+    if(state === 'idle'){ startGame(); return; }
+    if(state === 'over'){ return; }
+    if(player.jumpsLeft > 0){
+      player.vy = -H * 1.32;
+      player.jumpsLeft--;
+      spawnBurst(player.x + player.w/2, player.y + player.h, 6);
+      playJumpSfx();
     }
   }
 
-  panel.addEventListener('click', handleTrigger);
-  panel.addEventListener('keydown', (e) => {
-    if(e.code === 'Space' || e.code === 'Enter'){ e.preventDefault(); handleTrigger(); }
-  });
-  mainBtn.addEventListener('click', (e) => { e.stopPropagation(); handleTrigger(); });
+  function spawnBurst(x,y,n){
+    for(var i=0;i<n;i++){
+      particles.push({
+        x:x, y:y,
+        vx:(Math.random()-0.5)*140,
+        vy:-Math.random()*160,
+        life:0.4+Math.random()*0.3,
+        t:0,
+        r:2+Math.random()*2
+      });
+    }
+  }
 
-  copyBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if(lastMs === null) return;
-    const text = `라이트 아웃 반응속도 테스트: ${lastMs}ms (${getRank(lastMs)})`;
-    if(navigator.clipboard){
-      navigator.clipboard.writeText(text).then(() => {
-        const original = copyBtn.textContent;
-        copyBtn.textContent = '복사됨!';
-        setTimeout(() => { copyBtn.textContent = original; }, 1400);
-      }).catch(() => {});
+  function spawnObstacle(){
+    var type = Math.random();
+    var h, w, y;
+    if(type < 0.55){
+      h = H*(0.10+Math.random()*0.10);
+      w = h*(0.5+Math.random()*0.4);
+      y = groundY - h;
+    } else if(type < 0.85){
+      h = H*0.09;
+      w = H*(0.22+Math.random()*0.15);
+      y = groundY - h;
+    } else {
+      h = H*0.09;
+      w = H*0.14;
+      y = groundY - h - H*(0.22+Math.random()*0.10);
+    }
+    obstacles.push({x:W+10, y:y, w:w, h:h, passed:false});
+  }
+
+  function startGame(){
+    initGame();
+    state = 'playing';
+    startOverlay.classList.add('hidden');
+    overOverlay.classList.add('hidden');
+    lastT = performance.now();
+    requestAnimationFrame(loop);
+    initAudio();
+    startBgm();
+  }
+
+  function endGame(){
+    state = 'over';
+    shakeT = 0.25;
+    var isNew = score > best;
+    if(isNew){
+      best = score;
+      localStorage.setItem(STORAGE_KEY, String(best));
+    }
+    bestEl.textContent = 'BEST ' + best.toFixed(2);
+    finalScoreEl.textContent = score.toFixed(2);
+    newBestMsg.classList.toggle('hidden', !isNew);
+    overOverlay.classList.remove('hidden');
+    stopBgm();
+    playGameOverSfx();
+    saveHistoryEntry(score);
+    if(isNew && localStorage.getItem(NICK_KEY)) submitScore();
+  }
+
+  function onPointerDown(e){
+    if(e.target && (e.target.id === 'startBtn' || e.target.id === 'retryBtn' || e.target.id === 'muteBtn' || e.target.id === 'shareBtn')) return;
+    e.preventDefault();
+    jump();
+  }
+  container.addEventListener('pointerdown', onPointerDown, {passive:false});
+  window.addEventListener('keydown', function(e){
+    if(e.code === 'Space' || e.code === 'ArrowUp'){
+      e.preventDefault();
+      jump();
     }
   });
+  startBtn.addEventListener('click', startGame);
+  document.getElementById('muteBtn').addEventListener('click', function(e){
+    e.stopPropagation();
+    toggleMute();
+  });
+  retryBtn.addEventListener('click', startGame);
+
+  shareBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    var text = '점프잇에서 ' + score.toFixed(2) + '점 기록했어요! 너도 도전해봐 🎮';
+    var url = location.href.split('?')[0];
+    if(navigator.share){
+      navigator.share({ title: '점프잇 JUMP IT', text: text, url: url }).catch(function(){});
+    } else if(navigator.clipboard){
+      navigator.clipboard.writeText(text + ' ' + url).then(function(){
+        var original = shareBtn.textContent;
+        shareBtn.textContent = '복사됨!';
+        setTimeout(function(){ shareBtn.textContent = original; }, 1400);
+      }).catch(function(){});
+    }
+  });
+
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden && state === 'playing'){
+      state = 'paused';
+      stopBgm();
+    } else if(!document.hidden && state === 'paused'){
+      state = 'playing';
+      lastT = performance.now();
+      requestAnimationFrame(loop);
+      startBgm();
+    }
+  });
+
+  var lastT = 0;
+  function loop(now){
+    if(state !== 'playing'){ return; }
+    var dt = Math.min((now - lastT)/1000, 0.033);
+    lastT = now;
+    update(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  function update(dt){
+    elapsed += dt;
+    score += dt * 10 * (1 + speed/(W*0.42) - 1);
+    scoreEl.textContent = Math.floor(score);
+
+    speed = Math.min(W*0.42 + elapsed*W*0.012, W*0.95);
+    spawnInterval = Math.max(0.75, 1.3 - elapsed*0.01);
+
+    player.vy += gravity*dt;
+    player.y += player.vy*dt;
+    if(player.y > groundY){
+      player.y = groundY;
+      player.vy = 0;
+      player.onGround = true;
+      player.jumpsLeft = 2;
+    } else {
+      player.onGround = false;
+    }
+    player.rot = player.onGround ? 0 : Math.max(-0.5, Math.min(0.5, player.vy/(H*4)));
+
+    spawnTimer += dt;
+    if(spawnTimer >= spawnInterval){
+      spawnTimer = 0;
+      spawnObstacle();
+    }
+
+    var px = player.x, py = player.y - player.h, pw = player.w, ph = player.h;
+    for(var i=obstacles.length-1;i>=0;i--){
+      var o = obstacles[i];
+      o.x -= speed*dt;
+      if(o.x + o.w < -20){ obstacles.splice(i,1); continue; }
+      var margin = pw*0.18;
+      if(px+margin < o.x+o.w && px+pw-margin > o.x &&
+         py+margin < o.y+o.h && py+ph-margin > o.y){
+        endGame();
+        return;
+      }
+    }
+
+    for(var j=particles.length-1;j>=0;j--){
+      var p = particles[j];
+      p.t += dt;
+      if(p.t > p.life){ particles.splice(j,1); continue; }
+      p.x += p.vx*dt; p.y += p.vy*dt; p.vy += gravity*0.5*dt;
+    }
+
+    if(shakeT>0) shakeT -= dt;
+  }
+
+  function draw(){
+    ctx.save();
+    if(shakeT>0){
+      var s = shakeT*30;
+      ctx.translate((Math.random()-0.5)*s, (Math.random()-0.5)*s);
+    }
+
+    var grad = ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,'#1b1c3a');
+    grad.addColorStop(0.6,'#12132a');
+    grad.addColorStop(1,'#2c2d55');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,H);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    for(var s2=0; s2<18; s2++){
+      var sx = (s2*97 - (elapsed*20)%W + W*3) % W;
+      var sy = (s2*53) % (groundY*0.7);
+      ctx.fillRect(sx, sy, 2, 2);
+    }
+
+    ctx.fillStyle = '#2c2d55';
+    ctx.fillRect(0, groundY, W, H-groundY);
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, groundY);
+    ctx.lineTo(W, groundY);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.lineWidth = 3;
+    var dashLen = 24, gap = 18, off = (elapsed*speed) % (dashLen+gap);
+    ctx.beginPath();
+    for(var dx = -off; dx < W; dx += dashLen+gap){
+      ctx.moveTo(dx, groundY + (H-groundY)*0.35);
+      ctx.lineTo(dx+dashLen, groundY + (H-groundY)*0.35);
+    }
+    ctx.stroke();
+
+    for(var i=0;i<obstacles.length;i++){
+      var o = obstacles[i];
+      var og = ctx.createLinearGradient(o.x,o.y,o.x,o.y+o.h);
+      og.addColorStop(0,'#ff6b81');
+      og.addColorStop(1,'#e84393');
+      ctx.fillStyle = og;
+      roundRect(ctx, o.x, o.y, o.w, o.h, Math.min(6,o.w*0.2,o.h*0.2));
+      ctx.fill();
+    }
+
+    ctx.save();
+    var cx = player.x + player.w/2, cy = player.y - player.h/2;
+    ctx.translate(cx,cy);
+    ctx.rotate(player.rot);
+    var curSkin = skins[selectedSkin];
+    var pg = ctx.createLinearGradient(-player.w/2,-player.h/2,player.w/2,player.h/2);
+    pg.addColorStop(0,curSkin.c1);
+    pg.addColorStop(1,curSkin.c2);
+    ctx.fillStyle = pg;
+    roundRect(ctx, -player.w/2, -player.h/2, player.w, player.h, player.w*0.28);
+    ctx.fill();
+    ctx.fillStyle = '#0f1020';
+    ctx.beginPath();
+    ctx.arc(player.w*0.14, -player.h*0.12, Math.max(2,player.w*0.07), 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    for(var j=0;j<particles.length;j++){
+      var p = particles[j];
+      var alpha = 1 - p.t/p.life;
+      ctx.fillStyle = 'rgba(255,255,255,'+alpha.toFixed(2)+')';
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+
+  function roundRect(ctx,x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+
+  var SKIN_KEY = 'jumpit_skin';
+  var skins = [
+    {c1:'#00d2ff', c2:'#6c5ce7'},
+    {c1:'#ff9f43', c2:'#ee5253'},
+    {c1:'#26de81', c2:'#0fb9b1'},
+    {c1:'#fd79a8', c2:'#a55eea'}
+  ];
+  var selectedSkin = parseInt(localStorage.getItem(SKIN_KEY) || '0', 10);
+  if(isNaN(selectedSkin) || selectedSkin < 0 || selectedSkin >= skins.length) selectedSkin = 0;
+
+  var skinButtons = document.querySelectorAll('.skin-swatch');
+  function renderSkinSelection(){
+    skinButtons.forEach(function(btn){
+      var idx = parseInt(btn.getAttribute('data-skin'), 10);
+      btn.classList.toggle('selected', idx === selectedSkin);
+    });
+  }
+  skinButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      selectedSkin = parseInt(btn.getAttribute('data-skin'), 10);
+      localStorage.setItem(SKIN_KEY, String(selectedSkin));
+      renderSkinSelection();
+      if(state !== 'playing') draw();
+    });
+  });
+  renderSkinSelection();
+
+  var HISTORY_KEY = 'jumpit_history';
+  var myBestEl = document.getElementById('myBestEl');
+  var historyListEl = document.getElementById('historyList');
+
+  function loadHistory(){
+    try{ return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
+    catch(e){ return []; }
+  }
+
+  function saveHistoryEntry(s){
+    var hist = loadHistory();
+    hist.unshift({ score: s, ts: Date.now() });
+    hist = hist.slice(0, 20);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
+    renderHistory();
+  }
+
+  function pad2(n){ return n < 10 ? '0'+n : ''+n; }
+
+  function renderHistory(){
+    myBestEl.innerHTML = '최고 <strong>' + best.toFixed(2) + '</strong>';
+    var hist = loadHistory();
+    historyListEl.innerHTML = '';
+    if(hist.length === 0){
+      historyListEl.innerHTML = '<li class="empty">아직 기록이 없어요</li>';
+      return;
+    }
+    hist.slice(0, 5).forEach(function(h){
+      var d = new Date(h.ts);
+      var dateStr = (d.getMonth()+1) + '/' + d.getDate() + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+      var li = document.createElement('li');
+      var scoreSpan = document.createElement('span');
+      scoreSpan.textContent = h.score.toFixed(2);
+      var dateSpan = document.createElement('span');
+      dateSpan.className = 'hist-date';
+      dateSpan.textContent = dateStr;
+      li.appendChild(scoreSpan);
+      li.appendChild(dateSpan);
+      historyListEl.appendChild(li);
+    });
+  }
+
+  var SUPABASE_URL = "https://ivrgcohnltdgaufnyzdb.supabase.co";
+  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2cmdjb2hubHRkZ2F1Zm55emRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NzQyMTMsImV4cCI6MjEwNDQ1MDIxM30.8ntxD9FlOmqX50GihdFqK2mHhqzwP9YaFE5MXhJTWSs";
+  var supabaseReady = false;
+  var sb = null;
+  try{
+    if(window.supabase && SUPABASE_URL.indexOf('YOUR_') === -1){
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      supabaseReady = true;
+    }
+  }catch(e){ supabaseReady = false; }
+
+  var DEVICE_KEY = 'jumpit_device_id';
+  var deviceId = localStorage.getItem(DEVICE_KEY);
+  if(!deviceId){
+    deviceId = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    localStorage.setItem(DEVICE_KEY, deviceId);
+  }
+
+  var NICK_KEY = 'jumpit_nickname';
+  var nicknameInput = document.getElementById('nicknameInput');
+  nicknameInput.value = localStorage.getItem(NICK_KEY) || '';
+
+  var rankMsg = document.getElementById('rankMsg');
+  var rankListEl = document.getElementById('rankList');
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function renderRankFallback(){
+    rankMsg.textContent = '실시간 랭킹은 Supabase 연동 후 모두에게 공개돼요. 지금은 이 기기의 내 최고 기록만 보여요.';
+    rankListEl.innerHTML = '';
+    var li = document.createElement('li');
+    li.innerHTML = '<span class="rank-no">1</span><span class="rank-name">' +
+      escapeHtml(nicknameInput.value || '나') + '</span><span class="rank-score">' + best.toFixed(2) + '</span>';
+    rankListEl.appendChild(li);
+  }
+
+  function renderRankRows(rows){
+    rankListEl.innerHTML = '';
+    if(!rows || rows.length === 0){
+      rankListEl.innerHTML = '<li class="empty">아직 등록된 기록이 없어요</li>';
+      return;
+    }
+    rows.forEach(function(r, i){
+      var li = document.createElement('li');
+      if(r.id === deviceId) li.classList.add('me');
+      li.innerHTML = '<span class="rank-no">' + (i+1) + '</span><span class="rank-name">' +
+        escapeHtml(r.name) + '</span><span class="rank-score">' + Number(r.score).toFixed(2) + '</span>';
+      rankListEl.appendChild(li);
+    });
+  }
+
+  function fetchRanking(){
+    if(!supabaseReady) return;
+    sb.from('leaderboard').select('id,name,score').order('score', { ascending:false }).limit(10)
+      .then(function(res){
+        if(res.error){ rankMsg.textContent = '랭킹을 불러오지 못했어요.'; return; }
+        renderRankRows(res.data);
+      });
+  }
+
+  function submitScore(){
+    var name = (nicknameInput.value || '익명').trim().slice(0, 8) || '익명';
+    nicknameInput.value = name;
+    localStorage.setItem(NICK_KEY, name);
+    if(!supabaseReady){
+      renderRankFallback();
+      return;
+    }
+    rankMsg.textContent = '등록 중...';
+    sb.from('leaderboard').upsert({ id: deviceId, name: name, score: best }, { onConflict: 'id' })
+      .then(function(res){
+        if(res.error){ rankMsg.textContent = '등록에 실패했어요. 잠시 후 다시 시도해주세요.'; }
+        else{ rankMsg.textContent = '랭킹에 등록되었어요!'; }
+      });
+  }
+  document.getElementById('registerBtn').addEventListener('click', submitScore);
+
+  function listenRanking(){
+    if(!supabaseReady){
+      renderRankFallback();
+      return;
+    }
+    fetchRanking();
+    sb.channel('leaderboard-changes')
+      .on('postgres_changes', { event:'*', schema:'public', table:'leaderboard' }, fetchRanking)
+      .subscribe();
+  }
+
+  renderHistory();
+  listenRanking();
+
+  initGame();
+  draw();
 })();
 </script>
 </body>
