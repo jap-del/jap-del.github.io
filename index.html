@@ -2,21 +2,26 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>점프잇 - 심심할 때 한 판! 무료 미니게임</title>
 <meta name="description" content="장애물을 피해 점프하는 심플한 미니게임, 점프잇. 설치 없이 바로 즐기는 무료 브라우저 게임. 최고 기록에 도전해보세요!">
 <meta name="keywords" content="점프잇, 미니게임, 무료게임, 브라우저게임, 심심풀이게임, 캐주얼게임">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://jap-del.github.io/Jump-It/">
+<link rel="canonical" href="https://jap-del.github.io/">
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="점프잇 - 심심할 때 한 판!">
 <meta property="og:description" content="장애물을 피해 점프하는 심플한 미니게임. 지금 바로 플레이해보세요!">
-<meta property="og:url" content="https://jap-del.github.io/Jump-It/">
-<meta property="og:image" content="og-image.png">
+<meta property="og:url" content="https://jap-del.github.io/">
+<meta property="og:site_name" content="점프잇 JUMP IT">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
 
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"VideoGame","name":"점프잇 JUMP IT","url":"https://jap-del.github.io/","description":"장애물을 피해 점프하는 무료 브라우저 미니게임. 설치 없이 PC와 모바일에서 바로 플레이할 수 있습니다.","genre":["캐주얼","러너","아케이드"],"gamePlatform":["Web browser","PC","Mobile"],"applicationCategory":"Game","inLanguage":"ko","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}
+</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
 
 <style>
@@ -114,11 +119,9 @@
 
   .ad-slot{
     width:100%;max-width:728px;margin:10px auto;
-    min-height:90px;display:flex;align-items:center;justify-content:center;
-    background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.08);
+    display:flex;align-items:center;justify-content:center;
     border-radius:8px;overflow:hidden;font-size:11px;color:var(--sub);
   }
-  .ad-slot.bottom{min-height:100px;}
   .ad-label{position:absolute;font-size:9px;color:var(--sub);opacity:0.5;}
 
   .game-container{
@@ -191,6 +194,22 @@
     h1{font-size:19px;}
     .hud .score{font-size:18px;}
   }
+
+  .site-nav{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;margin:8px 0 2px;font-size:12px;}
+  .site-nav a{color:var(--sub);text-decoration:none;padding:4px 2px;}
+  .site-nav a:hover,.site-nav a[aria-current="page"]{color:var(--text);}
+  .content{width:100%;max-width:640px;margin:22px auto 0;line-height:1.75;}
+  .content section{background:var(--panel);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:18px 20px;margin-bottom:14px;}
+  .content h2{font-size:17px;margin:0 0 10px;color:var(--text);}
+  .content h3{font-size:14px;margin:16px 0 6px;color:var(--accent2);}
+  .content p,.content li{font-size:14px;color:#c9c9de;margin:0 0 8px;}
+  .content ul,.content ol{padding-left:20px;margin:0 0 8px;}
+  .content strong{color:var(--text);}
+  .content a{color:var(--accent2);}
+  .content details{border-top:1px solid rgba(255,255,255,0.06);padding:10px 0;}
+  .content details:first-of-type{border-top:none;}
+  .content summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--text);}
+  .content details p{margin:8px 0 0;}
 </style>
 </head>
 <body>
@@ -210,6 +229,13 @@
   <header>
     <h1>점프잇 JUMP IT</h1>
     <p class="tagline">스페이스바 또는 화면 탭으로 점프! 장애물을 피해보세요</p>
+    <nav class="site-nav" aria-label="사이트 메뉴">
+      <a href="./" aria-current="page">게임</a>
+      <a href="guide.html">플레이 가이드</a>
+      <a href="about.html">소개</a>
+      <a href="contact.html">문의</a>
+      <a href="privacy.html">개인정보처리방침</a>
+    </nav>
   </header>
 
   <div class="ad-slot top">
@@ -261,8 +287,75 @@
          data-full-width-responsive="true"></ins>
   </div>
 
+  <article class="content">
+    <section>
+      <h2>점프잇은 어떤 게임인가요?</h2>
+      <p><strong>점프잇(JUMP IT)</strong>은 앞으로 달려 나가는 네모 캐릭터를 점프시켜 다가오는 장애물을 피하는 무료 미니게임입니다. 앱 설치나 회원가입 없이 PC와 스마트폰 웹 브라우저에서 바로 플레이할 수 있습니다.</p>
+      <p>조작은 버튼 하나뿐이지만, 시간이 지날수록 속도가 빨라지고 장애물이 더 자주 나타납니다. 그래서 한 판은 짧아도 "한 번만 더"를 부르는 게임입니다. 쉬는 시간이나 이동 중에 가볍게 즐기고, 친구와 최고 기록을 겨뤄 보세요.</p>
+    </section>
+
+    <section>
+      <h2>플레이 방법</h2>
+      <ol>
+        <li><strong>게임 시작</strong> 버튼을 누르거나 게임 화면을 탭하면 시작합니다.</li>
+        <li>PC에서는 <strong>스페이스바</strong> 또는 <strong>위쪽 방향키(↑)</strong>, 모바일에서는 <strong>화면 탭</strong>으로 점프합니다.</li>
+        <li>공중에서 한 번 더 누르면 <strong>2단 점프</strong>를 할 수 있습니다. 땅에 닿으면 점프 횟수가 다시 2회로 충전됩니다.</li>
+        <li>분홍색 장애물에 닿으면 게임이 끝납니다. 버틴 시간과 속도에 따라 점수가 올라갑니다.</li>
+        <li>게임이 끝나면 <strong>다시 도전</strong>으로 바로 재시작하거나, <strong>결과 공유</strong>로 친구에게 기록을 보낼 수 있습니다.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>장애물 종류</h2>
+      <h3>① 기둥형 장애물</h3>
+      <p>땅에서 솟아오른 좁고 높은 기둥입니다. 가장 자주 나오며 높이가 매번 다릅니다. 높은 기둥은 1단 점프로 넘기 어려울 수 있으니 2단 점프를 준비하세요.</p>
+      <h3>② 넓은 블록</h3>
+      <p>높이는 낮지만 옆으로 긴 블록입니다. 너무 늦게 뛰면 착지할 때 블록 끝에 걸리기 쉽습니다. 블록 앞에서 조금 일찍 점프하는 것이 안전합니다.</p>
+      <h3>③ 공중 블록</h3>
+      <p>공중에 떠 있는 블록입니다. 대부분 <strong>점프하지 않고 그대로 지나가면</strong> 아래로 통과할 수 있습니다. 습관적으로 점프하다가 부딪히는 경우가 많으니 주의하세요.</p>
+    </section>
+
+    <section>
+      <h2>점수와 난이도</h2>
+      <p>점수는 살아남은 시간에 비례해 오르고, 속도가 빨라질수록 더 빠르게 쌓입니다. 시간이 지나면 캐릭터 속도가 점점 올라가고, 장애물이 나오는 간격도 약 1.3초에서 0.75초까지 줄어듭니다.</p>
+      <p>최고 기록과 최근 플레이 기록은 이용 중인 브라우저에 저장됩니다. 닉네임을 등록하면 다른 플레이어들과 <strong>실시간 랭킹 TOP 10</strong>에서 기록을 비교할 수 있습니다.</p>
+    </section>
+
+    <section>
+      <h2>고득점을 위한 팁</h2>
+      <ul>
+        <li><strong>2단 점프는 아껴 두세요.</strong> 첫 점프로 대부분 넘을 수 있으니, 두 번째 점프는 높은 기둥이나 착지 위치를 바꿀 때만 쓰는 게 좋습니다.</li>
+        <li><strong>장애물이 아니라 그 다음을 보세요.</strong> 속도가 빨라지면 눈앞의 장애물만 보면 늦습니다. 다음 장애물까지 미리 보고 착지 지점을 정하세요.</li>
+        <li><strong>공중 블록에서는 참으세요.</strong> 가만히 있으면 아래로 지나갈 수 있습니다.</li>
+        <li><strong>리듬을 타세요.</strong> 배경 음악의 박자에 맞춰 점프 타이밍을 잡으면 일정하게 반응하기 쉽습니다. 소리는 오른쪽 위 버튼으로 끌 수 있습니다.</li>
+      </ul>
+      <p>더 자세한 공략은 <a href="guide.html">플레이 가이드</a>에서 볼 수 있습니다.</p>
+    </section>
+
+    <section>
+      <h2>자주 묻는 질문</h2>
+      <details>
+        <summary>무료인가요? 설치해야 하나요?</summary>
+        <p>완전히 무료이며 설치가 필요 없습니다. 크롬, 엣지, 사파리, 삼성 인터넷 등 최신 브라우저에서 바로 실행됩니다.</p>
+      </details>
+      <details>
+        <summary>기록이 사라졌어요.</summary>
+        <p>최고 기록은 브라우저 저장소에 보관됩니다. 시크릿 모드를 쓰거나 브라우저 데이터를 지우면 기록이 초기화될 수 있습니다.</p>
+      </details>
+      <details>
+        <summary>랭킹에는 어떻게 올라가나요?</summary>
+        <p>오른쪽(모바일에서는 아래쪽) 랭킹 영역에 닉네임을 입력하고 등록하면 최고 기록이 랭킹에 올라갑니다. 이후 신기록을 세우면 자동으로 갱신됩니다.</p>
+      </details>
+      <details>
+        <summary>소리를 끄고 싶어요.</summary>
+        <p>게임 화면 오른쪽 위의 스피커 버튼을 누르면 배경 음악과 효과음이 모두 꺼집니다. 설정은 다음 방문 때도 유지됩니다.</p>
+      </details>
+    </section>
+  </article>
+
   <footer>
-    심심할 때 한 판, 점프잇 &copy; 2026 &nbsp;|&nbsp; <a href="privacy.html">개인정보처리방침</a>
+    <a href="guide.html">플레이 가이드</a> &nbsp;|&nbsp; <a href="about.html">소개</a> &nbsp;|&nbsp; <a href="contact.html">문의</a> &nbsp;|&nbsp; <a href="terms.html">이용약관</a> &nbsp;|&nbsp; <a href="privacy.html">개인정보처리방침</a><br>
+    심심할 때 한 판, 점프잇 &copy; 2026
   </footer>
   </div>
 
