@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>점프잇 개발기 ②: 중력, 2단 점프, 그리고 관대한 충돌 판정 - 잽델 게임즈</title>
+<meta name="description" content="점프잇의 점프 물리, 2단 점프 구현, 억울하지 않게 만든 충돌 판정, 시간에 따라 어려워지는 난이도 곡선을 설명합니다.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://jap-del.github.io/blog/jumpit-devlog-physics.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="잽델 게임즈">
+<meta property="og:title" content="점프잇 개발기 ②: 중력, 2단 점프, 그리고 관대한 충돌 판정 - 잽델 게임즈">
+<meta property="og:description" content="점프잇의 점프 물리, 2단 점프 구현, 억울하지 않게 만든 충돌 판정, 시간에 따라 어려워지는 난이도 곡선을 설명합니다.">
+<meta property="og:url" content="https://jap-del.github.io/blog/jumpit-devlog-physics.html">
+<meta property="og:locale" content="ko_KR">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/pages.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "점프잇 개발기 ②: 중력, 2단 점프, 그리고 관대한 충돌 판정", "description": "점프잇의 점프 물리, 2단 점프 구현, 억울하지 않게 만든 충돌 판정, 시간에 따라 어려워지는 난이도 곡선을 설명합니다.", "datePublished": "2026-10-19", "inLanguage": "ko", "author": {"@type": "Organization", "name": "잽델 게임즈"}, "mainEntityOfPage": "https://jap-del.github.io/blog/jumpit-devlog-physics.html"}</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="/">잽델 게임즈</a>
+    <nav aria-label="사이트 메뉴">
+      <a href="/">홈</a>
+      <a href="/jumpit/">점프잇</a>
+      <a href="/lightsout/">라이트 아웃</a>
+      <a href="/blog/" aria-current="page">블로그</a>
+      <a href="/about.html">소개</a>
+      <a href="/contact.html">문의</a>
+    </nav>
+  </header>
+  <article class="post">
+    <p class="crumbs"><a href="/">홈</a> › <a href="/blog/">블로그</a> › 개발기</p>
+    <h1>점프잇 개발기 ②: 중력, 2단 점프, 그리고 관대한 충돌 판정</h1>
+    <p class="meta"><span class="tag">개발기</span>2026년 10월 19일 · 잽델 게임즈</p>
+    <section>
+<p>두 번째 개발기에서는 점프잇의 손맛을 결정하는 <strong>점프 물리</strong>와 <strong>충돌 판정</strong>, 그리고 <strong>난이도 곡선</strong>을 다룹니다.</p>
+
+<h2>점프는 속도와 중력의 줄다리기</h2>
+<p>현실의 점프처럼, 게임 속 점프도 두 값으로 표현할 수 있습니다.</p>
+<ul>
+  <li><strong>세로 속도(vy)</strong>: 점프 버튼을 누르는 순간 위쪽으로 큰 속도를 줍니다.</li>
+  <li><strong>중력</strong>: 매 프레임 세로 속도를 아래쪽으로 조금씩 키웁니다.</li>
+</ul>
+<pre><code>player.vy += gravity * dt;
+player.y  += player.vy * dt;</code></pre>
+<p>위로 향하던 속도가 중력 때문에 점점 줄어들다가 0이 되는 지점이 점프의 꼭대기이고, 그 뒤로는 아래로 가속하며 떨어집니다. 이 두 줄만으로 자연스러운 포물선이 만들어집니다.</p>
+<p>점프 속도와 중력 값은 직접 플레이하며 여러 번 조정했습니다. 중력이 약하면 둥실둥실 떠서 답답하고, 너무 강하면 점프가 짧아 장애물을 넘기 어렵습니다. 점프잇은 "빠르게 올라가고 빠르게 내려오는" 쪽으로 맞춰 반응이 경쾌하게 느껴지도록 했습니다.</p>
+
+<h2>2단 점프 구현</h2>
+<p>2단 점프는 생각보다 간단합니다. 남은 점프 횟수를 세는 변수 하나면 됩니다.</p>
+<pre><code>function jump(){
+  if(player.jumpsLeft > 0){
+    player.vy = -H * 1.32;
+    player.jumpsLeft--;
+  }
+}
+// 땅에 닿으면
+player.jumpsLeft = 2;</code></pre>
+<p>두 번째 점프도 첫 점프와 같은 위쪽 속도로 <strong>덮어쓰기</strong> 때문에, 떨어지는 중에 눌러도 다시 힘차게 솟아오릅니다. 이 덕분에 착지 위치를 조절하는 용도로도 쓸 수 있습니다.</p>
+
+<h2>억울하지 않은 충돌 판정</h2>
+<p>캐릭터와 장애물이 닿았는지는 두 사각형이 겹치는지로 판단합니다(AABB 충돌 판정). 그런데 그림의 테두리 그대로 판정하면, 플레이어 눈에는 분명 피한 것 같은데 게임 오버가 되는 "억울한" 상황이 자주 생깁니다. 캐릭터의 모서리가 둥글게 그려져 있기 때문입니다.</p>
+<p>그래서 점프잇은 캐릭터 크기의 <strong>18%만큼 안쪽으로 줄인 사각형</strong>으로 충돌을 검사합니다. 아슬아슬하게 스친 경우는 살려 주는 셈입니다. 많은 액션 게임이 플레이어에게 유리한 쪽으로 판정을 조금 너그럽게 잡는 것도 같은 이유입니다.</p>
+
+<h2>장애물 3종 만들기</h2>
+<p>장애물이 나올 때마다 무작위 값을 뽑아 종류를 정합니다.</p>
+<table>
+  <tr><th>확률</th><th>종류</th><th>특징</th></tr>
+  <tr><td>55%</td><td>기둥</td><td>좁고 높이가 제각각</td></tr>
+  <tr><td>30%</td><td>넓은 블록</td><td>낮지만 옆으로 김</td></tr>
+  <tr><td>15%</td><td>공중 블록</td><td>떠 있어서 아래로 통과 가능</td></tr>
+</table>
+<p>공중 블록을 드물게 섞은 이유는 습관적으로 버튼을 누르는 플레이를 흔들기 위해서입니다. 가장 쉬운 정답이 "아무것도 하지 않기"인 장애물이 가끔 나오면 플레이어가 화면을 더 집중해서 보게 됩니다.</p>
+
+<h2>난이도 곡선</h2>
+<p>점프잇은 시간이 지날수록 두 가지가 변합니다.</p>
+<ul>
+  <li><strong>속도</strong>: 시작 속도에서 시간에 비례해 조금씩 빨라지며, 너무 빨라지지 않도록 상한을 두었습니다.</li>
+  <li><strong>장애물 간격</strong>: 1.3초에서 시작해 1초마다 0.01초씩 줄어들고, 0.75초에서 멈춥니다. 약 55초가 지나면 가장 촘촘한 간격이 됩니다.</li>
+</ul>
+<p>점수도 버틴 시간에 그 순간의 속도 배율을 곱해 쌓이기 때문에, 후반에 버티는 1초가 초반의 1초보다 더 값집니다.</p>
+
+<h2>다음 이야기</h2>
+<p><a href="/blog/jumpit-devlog-sound.html">다음 개발기</a>에서는 파일 하나 없이 코드만으로 배경 음악과 효과음을 만든 방법을 소개합니다. 지금까지의 내용을 직접 느껴 보려면 <a href="/jumpit/">점프잇</a>을 플레이해 보세요.</p>
+    </section>
+  </article>
+  <section class="related">
+    <h2>함께 읽으면 좋은 글</h2>
+    <ul>
+      <li><a href="/blog/jumpit-devlog-game-loop.html">점프잇 개발기 ①: 캔버스와 게임 루프 만들기</a></li>
+      <li><a href="/blog/jumpit-devlog-sound.html">점프잇 개발기 ③: 음악 파일 없이 Web Audio API로 소리 만들기</a></li>
+      <li><a href="/blog/lightsout-devlog-timing.html">라이트 아웃 개발기: 웹에서 밀리초 단위로 반응속도 재기</a></li>
+    </ul>
+    <p><a href="/blog/">블로그 전체 글 보기 &rarr;</a></p>
+  </section>
+  <footer>
+    <a href="/jumpit/">점프잇</a> &nbsp;|&nbsp; <a href="/lightsout/">라이트 아웃</a> &nbsp;|&nbsp; <a href="/blog/">블로그</a> &nbsp;|&nbsp; <a href="/about.html">소개</a> &nbsp;|&nbsp; <a href="/contact.html">문의</a> &nbsp;|&nbsp; <a href="/terms.html">이용약관</a> &nbsp;|&nbsp; <a href="/privacy.html">개인정보처리방침</a><br>
+    잽델 게임즈 &copy; 2026 &nbsp;·&nbsp; 문의 <a href="mailto:jap__26@naver.com">jap__26@naver.com</a>
+  </footer>
+</div>
+</body>
+</html>

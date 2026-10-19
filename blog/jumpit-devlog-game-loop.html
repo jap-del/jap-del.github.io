@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>점프잇 개발기 ①: 캔버스와 게임 루프 만들기 - 잽델 게임즈</title>
+<meta name="description" content="HTML5 캔버스와 requestAnimationFrame으로 브라우저 게임의 기본 뼈대인 게임 루프를 만드는 과정과, 화면 크기·고해상도 대응 방법을 설명합니다.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://jap-del.github.io/blog/jumpit-devlog-game-loop.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="잽델 게임즈">
+<meta property="og:title" content="점프잇 개발기 ①: 캔버스와 게임 루프 만들기 - 잽델 게임즈">
+<meta property="og:description" content="HTML5 캔버스와 requestAnimationFrame으로 브라우저 게임의 기본 뼈대인 게임 루프를 만드는 과정과, 화면 크기·고해상도 대응 방법을 설명합니다.">
+<meta property="og:url" content="https://jap-del.github.io/blog/jumpit-devlog-game-loop.html">
+<meta property="og:locale" content="ko_KR">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/pages.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "점프잇 개발기 ①: 캔버스와 게임 루프 만들기", "description": "HTML5 캔버스와 requestAnimationFrame으로 브라우저 게임의 기본 뼈대인 게임 루프를 만드는 과정과, 화면 크기·고해상도 대응 방법을 설명합니다.", "datePublished": "2026-10-19", "inLanguage": "ko", "author": {"@type": "Organization", "name": "잽델 게임즈"}, "mainEntityOfPage": "https://jap-del.github.io/blog/jumpit-devlog-game-loop.html"}</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="/">잽델 게임즈</a>
+    <nav aria-label="사이트 메뉴">
+      <a href="/">홈</a>
+      <a href="/jumpit/">점프잇</a>
+      <a href="/lightsout/">라이트 아웃</a>
+      <a href="/blog/" aria-current="page">블로그</a>
+      <a href="/about.html">소개</a>
+      <a href="/contact.html">문의</a>
+    </nav>
+  </header>
+  <article class="post">
+    <p class="crumbs"><a href="/">홈</a> › <a href="/blog/">블로그</a> › 개발기</p>
+    <h1>점프잇 개발기 ①: 캔버스와 게임 루프 만들기</h1>
+    <p class="meta"><span class="tag">개발기</span>2026년 10월 19일 · 잽델 게임즈</p>
+    <section>
+<p>점프잇은 별도의 게임 엔진 없이 <strong>HTML5 캔버스와 순수 자바스크립트</strong>로 만들었습니다. 첫 번째 개발기에서는 모든 게임의 심장이라고 할 수 있는 <strong>게임 루프</strong>를 어떻게 만들었는지 정리합니다.</p>
+
+<h2>게임 루프란?</h2>
+<p>게임은 1초에 수십 번씩 같은 일을 반복합니다.</p>
+<ol>
+  <li><strong>업데이트</strong>: 캐릭터와 장애물의 위치, 점수, 충돌 여부를 계산합니다.</li>
+  <li><strong>그리기</strong>: 계산된 상태대로 화면을 다시 그립니다.</li>
+</ol>
+<p>이 두 단계를 계속 반복하는 구조를 게임 루프라고 합니다.</p>
+
+<h2>setInterval 대신 requestAnimationFrame</h2>
+<p>처음에는 <code>setInterval</code>로 일정 시간마다 함수를 부르는 방법을 떠올리기 쉽습니다. 하지만 브라우저 게임에서는 <code>requestAnimationFrame</code>을 쓰는 것이 좋습니다.</p>
+<ul>
+  <li>모니터가 화면을 새로 그리는 타이밍에 맞춰 호출되어 움직임이 부드럽습니다.</li>
+  <li>탭이 백그라운드로 가면 자동으로 멈추거나 느려져 배터리를 아낍니다.</li>
+</ul>
+<pre><code>function loop(now){
+  if(state !== 'playing') return;
+  var dt = Math.min((now - lastT) / 1000, 0.033);
+  lastT = now;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}</code></pre>
+
+<h2>델타 타임: 모니터가 달라도 같은 속도로</h2>
+<p>모니터 주사율은 기기마다 다릅니다. 60Hz 화면에서는 1초에 60번, 144Hz 화면에서는 144번 루프가 돕니다. 매 프레임 "5픽셀씩 이동"처럼 만들면 144Hz 화면에서 게임이 두 배 이상 빨라지는 문제가 생깁니다.</p>
+<p>그래서 이전 프레임과의 시간 차이인 <strong>델타 타임(dt)</strong>을 구해, 모든 움직임을 "초당 얼마"로 계산합니다. <code>위치 += 속도 × dt</code>로 계산하면 어떤 화면에서도 같은 속도로 움직입니다.</p>
+<p>위 코드에서 dt를 최대 0.033초(약 30fps 한 프레임)로 제한한 것도 중요합니다. 컴퓨터가 잠깐 멈췄다가 돌아오면 dt가 크게 튀는데, 그대로 계산하면 캐릭터가 장애물을 순간이동하듯 통과해 버릴 수 있기 때문입니다.</p>
+
+<h2>선명한 화면: devicePixelRatio 대응</h2>
+<p>요즘 스마트폰과 노트북은 CSS 픽셀 하나에 실제 화면 픽셀이 2~3개씩 들어가는 고해상도 화면을 씁니다. 캔버스를 CSS 크기 그대로 만들면 이런 화면에서 흐릿하게 보입니다.</p>
+<pre><code>var DPR = Math.min(window.devicePixelRatio || 1, 2);
+canvas.width  = Math.round(W * DPR);
+canvas.height = Math.round(H * DPR);
+ctx.setTransform(DPR, 0, 0, DPR, 0, 0);</code></pre>
+<p>캔버스의 실제 픽셀 수는 배율만큼 키우고, 그리기 좌표는 <code>setTransform</code>으로 원래 크기 기준을 유지합니다. 배율을 최대 2로 제한한 것은 3배 화면에서 그려야 할 픽셀이 너무 많아져 성능이 떨어지는 것을 막기 위해서입니다.</p>
+
+<h2>화면 크기에 비례하는 게임 세계</h2>
+<p>점프잇의 게임 화면은 16:9 비율을 유지하면서 화면 폭에 맞춰 늘어나고 줄어듭니다. 그래서 캐릭터 크기, 점프 높이, 이동 속도를 모두 <strong>화면 크기에 대한 비율</strong>로 정했습니다. 예를 들어 땅의 높이는 화면 높이의 82% 지점, 달리는 속도는 화면 폭의 42%를 1초에 이동하는 값에서 시작합니다. 덕분에 휴대폰과 큰 모니터에서 같은 감각으로 플레이할 수 있습니다.</p>
+
+<h2>다음 이야기</h2>
+<p>게임 루프가 준비되면 이제 캐릭터를 움직일 차례입니다. <a href="/blog/jumpit-devlog-physics.html">다음 개발기</a>에서는 중력, 2단 점프, 충돌 판정을 다룹니다. 완성된 결과는 <a href="/jumpit/">점프잇</a>에서 확인할 수 있습니다.</p>
+    </section>
+  </article>
+  <section class="related">
+    <h2>함께 읽으면 좋은 글</h2>
+    <ul>
+      <li><a href="/blog/jumpit-devlog-physics.html">점프잇 개발기 ②: 중력, 2단 점프, 그리고 관대한 충돌 판정</a></li>
+      <li><a href="/blog/jumpit-devlog-sound.html">점프잇 개발기 ③: 음악 파일 없이 Web Audio API로 소리 만들기</a></li>
+      <li><a href="/blog/lightsout-devlog-timing.html">라이트 아웃 개발기: 웹에서 밀리초 단위로 반응속도 재기</a></li>
+    </ul>
+    <p><a href="/blog/">블로그 전체 글 보기 &rarr;</a></p>
+  </section>
+  <footer>
+    <a href="/jumpit/">점프잇</a> &nbsp;|&nbsp; <a href="/lightsout/">라이트 아웃</a> &nbsp;|&nbsp; <a href="/blog/">블로그</a> &nbsp;|&nbsp; <a href="/about.html">소개</a> &nbsp;|&nbsp; <a href="/contact.html">문의</a> &nbsp;|&nbsp; <a href="/terms.html">이용약관</a> &nbsp;|&nbsp; <a href="/privacy.html">개인정보처리방침</a><br>
+    잽델 게임즈 &copy; 2026 &nbsp;·&nbsp; 문의 <a href="mailto:jap__26@naver.com">jap__26@naver.com</a>
+  </footer>
+</div>
+</body>
+</html>

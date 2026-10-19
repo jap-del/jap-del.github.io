@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>내 반응속도 기록에 숨어 있는 '입력 지연' 이해하기 - 잽델 게임즈</title>
+<meta name="description" content="모니터 주사율, 마우스 폴링 레이트, 무선 연결, 브라우저 처리 등 반응속도 측정값에 더해지는 기기 지연을 설명합니다.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://jap-del.github.io/blog/input-lag-explained.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="잽델 게임즈">
+<meta property="og:title" content="내 반응속도 기록에 숨어 있는 '입력 지연' 이해하기 - 잽델 게임즈">
+<meta property="og:description" content="모니터 주사율, 마우스 폴링 레이트, 무선 연결, 브라우저 처리 등 반응속도 측정값에 더해지는 기기 지연을 설명합니다.">
+<meta property="og:url" content="https://jap-del.github.io/blog/input-lag-explained.html">
+<meta property="og:locale" content="ko_KR">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/pages.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "내 반응속도 기록에 숨어 있는 '입력 지연' 이해하기", "description": "모니터 주사율, 마우스 폴링 레이트, 무선 연결, 브라우저 처리 등 반응속도 측정값에 더해지는 기기 지연을 설명합니다.", "datePublished": "2026-10-19", "inLanguage": "ko", "author": {"@type": "Organization", "name": "잽델 게임즈"}, "mainEntityOfPage": "https://jap-del.github.io/blog/input-lag-explained.html"}</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="/">잽델 게임즈</a>
+    <nav aria-label="사이트 메뉴">
+      <a href="/">홈</a>
+      <a href="/jumpit/">점프잇</a>
+      <a href="/lightsout/">라이트 아웃</a>
+      <a href="/blog/" aria-current="page">블로그</a>
+      <a href="/about.html">소개</a>
+      <a href="/contact.html">문의</a>
+    </nav>
+  </header>
+  <article class="post">
+    <p class="crumbs"><a href="/">홈</a> › <a href="/blog/">블로그</a> › 반응속도 상식</p>
+    <h1>내 반응속도 기록에 숨어 있는 '입력 지연' 이해하기</h1>
+    <p class="meta"><span class="tag">반응속도 상식</span>2026년 10월 19일 · 잽델 게임즈</p>
+    <section>
+<p>같은 사람이 PC와 스마트폰에서 반응속도를 재면 결과가 다르게 나오곤 합니다. 실력이 바뀐 게 아니라 <strong>기기가 만드는 지연</strong>이 다르기 때문입니다. 반응속도 테스트의 숫자를 정확히 이해하려면 이 지연을 알아 둘 필요가 있습니다.</p>
+
+<h2>측정값 = 내 반응 + 기기 지연</h2>
+<p>라이트 아웃이 보여 주는 숫자는 프로그램이 "불을 끈다"고 처리한 순간부터 클릭 신호를 받은 순간까지의 시간입니다. 그 사이에는 사람의 반응 말고도 여러 단계가 끼어 있습니다.</p>
+<ol>
+  <li>브라우저가 화면을 다시 그리는 시간</li>
+  <li>모니터가 새 화면을 실제로 표시하는 시간</li>
+  <li>(사람의 반응)</li>
+  <li>마우스나 터치스크린이 입력을 컴퓨터로 보내는 시간</li>
+  <li>브라우저가 입력 이벤트를 처리하는 시간</li>
+</ol>
+
+<h2>모니터 주사율</h2>
+<p>모니터는 1초에 정해진 횟수만큼 화면을 새로 그립니다. 60Hz 모니터라면 한 장면이 약 <strong>16.7ms</strong> 동안 유지됩니다. 불이 꺼지는 변화가 다음 갱신 때까지 기다려야 한다면 최대 그만큼 늦게 보일 수 있습니다. 144Hz 모니터는 갱신 간격이 약 6.9ms라서 이 대기 시간이 줄어듭니다.</p>
+<p>또 모니터마다 신호를 받아 화면에 표시하기까지의 처리 시간도 다릅니다. TV는 화질 보정 때문에 이 시간이 긴 경우가 많아, 게임할 때 "게임 모드"를 켜라고 권하는 것입니다.</p>
+
+<h2>마우스와 키보드</h2>
+<p>마우스는 일정한 주기로 컴퓨터에 상태를 보고합니다. 이 주기를 <strong>폴링 레이트</strong>라고 합니다.</p>
+<table>
+  <tr><th>폴링 레이트</th><th>보고 간격</th></tr>
+  <tr><td>125Hz</td><td>8ms</td></tr>
+  <tr><td>500Hz</td><td>2ms</td></tr>
+  <tr><td>1000Hz</td><td>1ms</td></tr>
+</table>
+<p>일반 사무용 마우스는 125Hz인 경우가 많고, 게이밍 마우스는 1000Hz 이상을 지원합니다. 블루투스 연결은 절전 기능 때문에 지연이 더 생길 수 있습니다.</p>
+
+<h2>스마트폰 터치</h2>
+<p>스마트폰 터치스크린도 일정 주기로 손가락 위치를 읽습니다. 기종에 따라 터치를 인식해 앱에 전달하기까지의 시간이 꽤 다릅니다. 그래서 같은 사람이라도 PC 기록과 스마트폰 기록을 그대로 비교하기는 어렵습니다.</p>
+
+<h2>브라우저 안에서 생기는 지연</h2>
+<p>웹 게임은 브라우저 위에서 돌아가기 때문에, 브라우저가 다른 작업으로 바쁘면 화면 갱신이나 입력 처리가 조금씩 밀릴 수 있습니다. 탭을 많이 열어 두었거나 무거운 확장 프로그램이 있으면 영향이 생길 수 있습니다. 라이트 아웃은 시간을 잴 때 정밀한 타이머(<code>performance.now()</code>)를 써서 측정 자체의 오차를 줄였습니다. 자세한 구현은 <a href="/blog/lightsout-devlog-timing.html">개발기</a>에 정리했습니다.</p>
+
+<h2>그래서 어떻게 비교해야 할까?</h2>
+<ul>
+  <li>기록은 <strong>같은 기기, 같은 환경</strong>에서 비교하세요.</li>
+  <li>친구와 대결한다면 한 기기를 번갈아 쓰는 것이 가장 공정합니다.</li>
+  <li>인터넷의 "평균 반응속도" 수치는 측정 환경이 다를 수 있으니 참고만 하세요.</li>
+</ul>
+<p>기기 지연을 이해하고 나면 내 기록을 더 정확하게 볼 수 있습니다. <a href="/lightsout/">라이트 아웃</a>에서 PC와 스마트폰 기록을 각각 재서 차이를 확인해 보세요.</p>
+    </section>
+  </article>
+  <section class="related">
+    <h2>함께 읽으면 좋은 글</h2>
+    <ul>
+      <li><a href="/blog/reaction-time-basics.html">반응속도란 무엇일까? 측정 원리와 평균 기록</a></li>
+      <li><a href="/blog/f1-start-lights.html">F1 스타트 신호의 원리: '라이트 아웃'은 어떻게 진행될까</a></li>
+      <li><a href="/blog/false-start-rules.html">육상 100m의 부정출발 규칙: 왜 0.1초가 기준일까</a></li>
+    </ul>
+    <p><a href="/blog/">블로그 전체 글 보기 &rarr;</a></p>
+  </section>
+  <footer>
+    <a href="/jumpit/">점프잇</a> &nbsp;|&nbsp; <a href="/lightsout/">라이트 아웃</a> &nbsp;|&nbsp; <a href="/blog/">블로그</a> &nbsp;|&nbsp; <a href="/about.html">소개</a> &nbsp;|&nbsp; <a href="/contact.html">문의</a> &nbsp;|&nbsp; <a href="/terms.html">이용약관</a> &nbsp;|&nbsp; <a href="/privacy.html">개인정보처리방침</a><br>
+    잽델 게임즈 &copy; 2026 &nbsp;·&nbsp; 문의 <a href="mailto:jap__26@naver.com">jap__26@naver.com</a>
+  </footer>
+</div>
+</body>
+</html>

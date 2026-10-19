@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>라이트 아웃 개발기: 웹에서 밀리초 단위로 반응속도 재기 - 잽델 게임즈</title>
+<meta name="description" content="라이트 아웃이 반응시간을 재는 방법(performance.now), 예측을 막는 무작위 대기 시간, 부정출발 처리, 키보드 조작 지원을 설명합니다.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://jap-del.github.io/blog/lightsout-devlog-timing.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="잽델 게임즈">
+<meta property="og:title" content="라이트 아웃 개발기: 웹에서 밀리초 단위로 반응속도 재기 - 잽델 게임즈">
+<meta property="og:description" content="라이트 아웃이 반응시간을 재는 방법(performance.now), 예측을 막는 무작위 대기 시간, 부정출발 처리, 키보드 조작 지원을 설명합니다.">
+<meta property="og:url" content="https://jap-del.github.io/blog/lightsout-devlog-timing.html">
+<meta property="og:locale" content="ko_KR">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/pages.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "라이트 아웃 개발기: 웹에서 밀리초 단위로 반응속도 재기", "description": "라이트 아웃이 반응시간을 재는 방법(performance.now), 예측을 막는 무작위 대기 시간, 부정출발 처리, 키보드 조작 지원을 설명합니다.", "datePublished": "2026-10-19", "inLanguage": "ko", "author": {"@type": "Organization", "name": "잽델 게임즈"}, "mainEntityOfPage": "https://jap-del.github.io/blog/lightsout-devlog-timing.html"}</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="/">잽델 게임즈</a>
+    <nav aria-label="사이트 메뉴">
+      <a href="/">홈</a>
+      <a href="/jumpit/">점프잇</a>
+      <a href="/lightsout/">라이트 아웃</a>
+      <a href="/blog/" aria-current="page">블로그</a>
+      <a href="/about.html">소개</a>
+      <a href="/contact.html">문의</a>
+    </nav>
+  </header>
+  <article class="post">
+    <p class="crumbs"><a href="/">홈</a> › <a href="/blog/">블로그</a> › 개발기</p>
+    <h1>라이트 아웃 개발기: 웹에서 밀리초 단위로 반응속도 재기</h1>
+    <p class="meta"><span class="tag">개발기</span>2026년 10월 19일 · 잽델 게임즈</p>
+    <section>
+<p>라이트 아웃은 화면의 불이 꺼진 순간부터 클릭까지의 시간을 밀리초 단위로 보여 줍니다. 단순해 보이지만, 정확하고 공정하게 재려면 몇 가지 고민이 필요했습니다.</p>
+
+<h2>Date.now() 대신 performance.now()</h2>
+<p>자바스크립트에서 현재 시각을 얻는 가장 익숙한 방법은 <code>Date.now()</code>입니다. 하지만 이 값은 컴퓨터의 시계를 따르기 때문에, 측정 중에 시스템 시간이 동기화되면 값이 튈 수 있습니다.</p>
+<p>그래서 라이트 아웃은 <code>performance.now()</code>를 씁니다. 페이지가 열린 뒤부터 일정하게 증가하는 시계라서 시스템 시간이 바뀌어도 영향을 받지 않고, 소수점 아래까지 더 정밀한 값을 줍니다.</p>
+<pre><code>function goSignal(){
+  litCount(0);           // 불을 모두 끈다
+  goAt = performance.now();
+}
+function registerResult(){
+  var ms = Math.round(performance.now() - goAt);
+}</code></pre>
+
+<h2>예측을 막는 무작위 타이밍</h2>
+<p>반응속도 테스트에서 가장 중요한 것은 <strong>"언제 꺼질지 예측할 수 없게"</strong> 만드는 것입니다. 타이밍이 일정하면 사람은 금방 리듬을 외워서 신호를 보지 않고 누르게 됩니다.</p>
+<p>라이트 아웃은 두 단계에서 무작위성을 넣었습니다.</p>
+<ul>
+  <li><strong>불이 켜지는 간격</strong>: 0.5~0.8초 사이에서 매번 다르게 정합니다.</li>
+  <li><strong>마지막 불이 켜진 뒤 꺼질 때까지</strong>: 1~3.2초 사이에서 무작위로 정합니다.</li>
+</ul>
+<p>대기 시간의 폭이 2초 넘게 차이 나기 때문에 "대충 이쯤"이라는 감으로 누르면 부정출발이 나기 쉽습니다. 실제 F1 출발도 비슷한 원리로 예측을 막습니다. 자세한 내용은 <a href="/blog/f1-start-lights.html">F1 스타트 신호 글</a>을 참고하세요.</p>
+
+<h2>부정출발 처리</h2>
+<p>게임은 몇 가지 상태를 오가며 진행됩니다.</p>
+<table>
+  <tr><th>상태</th><th>뜻</th><th>이때 클릭하면</th></tr>
+  <tr><td>대기</td><td>시작 전</td><td>새 라운드 시작</td></tr>
+  <tr><td>점등 중</td><td>불이 켜지는 중</td><td>부정출발</td></tr>
+  <tr><td>출발</td><td>불이 모두 꺼짐</td><td>기록 측정</td></tr>
+  <tr><td>결과</td><td>기록 표시 중</td><td>새 라운드 시작</td></tr>
+</table>
+<p>점등 중에 클릭하면 예약해 둔 모든 타이머를 취소하고 부정출발 화면으로 바꿉니다. 타이머를 깔끔하게 취소하지 않으면, 부정출발 뒤에 뒤늦게 "출발" 신호가 와서 상태가 꼬이는 버그가 생길 수 있습니다. 그래서 예약한 타이머를 모두 배열에 담아 두고 한꺼번에 정리합니다.</p>
+
+<h2>키보드로도 공정하게</h2>
+<p>마우스보다 키보드가 편한 사람도 있고, 화면 읽기 프로그램을 쓰는 사람도 있습니다. 게임 판은 키보드 포커스를 받을 수 있게 만들고, <strong>스페이스바와 엔터</strong>로도 클릭과 똑같이 반응하게 했습니다. 스페이스바를 누를 때 페이지가 스크롤되지 않도록 기본 동작도 막아 두었습니다.</p>
+
+<h2>기록을 보여 주는 방식</h2>
+<ul>
+  <li><strong>최고 기록</strong>: 브라우저에 저장해 다시 방문해도 남습니다.</li>
+  <li><strong>최근 5회 평균</strong>: 한 번의 운보다 실력을 잘 보여 줍니다.</li>
+  <li><strong>기록 칩</strong>: 최근 시도를 부정출발까지 포함해 보여 줘서 내 패턴을 확인할 수 있습니다.</li>
+  <li><strong>결과 복사</strong>: 기록을 친구에게 쉽게 보낼 수 있습니다.</li>
+</ul>
+
+<h2>측정의 한계</h2>
+<p>아무리 정밀한 타이머를 써도 모니터와 마우스의 지연은 측정값에 포함됩니다. 그래서 라이트 아웃의 숫자는 "순수한 신경 반응 시간"이 아니라 "이 기기에서의 반응 기록"으로 보는 것이 정확합니다. 이 부분은 <a href="/blog/input-lag-explained.html">입력 지연 글</a>에서 자세히 설명했습니다.</p>
+<p>직접 측정해 보려면 <a href="/lightsout/">라이트 아웃</a>으로 이동하세요.</p>
+    </section>
+  </article>
+  <section class="related">
+    <h2>함께 읽으면 좋은 글</h2>
+    <ul>
+      <li><a href="/blog/jumpit-devlog-game-loop.html">점프잇 개발기 ①: 캔버스와 게임 루프 만들기</a></li>
+      <li><a href="/blog/jumpit-devlog-physics.html">점프잇 개발기 ②: 중력, 2단 점프, 그리고 관대한 충돌 판정</a></li>
+      <li><a href="/blog/jumpit-devlog-sound.html">점프잇 개발기 ③: 음악 파일 없이 Web Audio API로 소리 만들기</a></li>
+    </ul>
+    <p><a href="/blog/">블로그 전체 글 보기 &rarr;</a></p>
+  </section>
+  <footer>
+    <a href="/jumpit/">점프잇</a> &nbsp;|&nbsp; <a href="/lightsout/">라이트 아웃</a> &nbsp;|&nbsp; <a href="/blog/">블로그</a> &nbsp;|&nbsp; <a href="/about.html">소개</a> &nbsp;|&nbsp; <a href="/contact.html">문의</a> &nbsp;|&nbsp; <a href="/terms.html">이용약관</a> &nbsp;|&nbsp; <a href="/privacy.html">개인정보처리방침</a><br>
+    잽델 게임즈 &copy; 2026 &nbsp;·&nbsp; 문의 <a href="mailto:jap__26@naver.com">jap__26@naver.com</a>
+  </footer>
+</div>
+</body>
+</html>

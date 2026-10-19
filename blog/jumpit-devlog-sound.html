@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>점프잇 개발기 ③: 음악 파일 없이 Web Audio API로 소리 만들기 - 잽델 게임즈</title>
+<meta name="description" content="오디오 파일 없이 Web Audio API의 오실레이터로 효과음과 배경 음악을 만드는 방법, 브라우저 자동 재생 정책 대응, 음소거 저장을 다룹니다.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://jap-del.github.io/blog/jumpit-devlog-sound.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="잽델 게임즈">
+<meta property="og:title" content="점프잇 개발기 ③: 음악 파일 없이 Web Audio API로 소리 만들기 - 잽델 게임즈">
+<meta property="og:description" content="오디오 파일 없이 Web Audio API의 오실레이터로 효과음과 배경 음악을 만드는 방법, 브라우저 자동 재생 정책 대응, 음소거 저장을 다룹니다.">
+<meta property="og:url" content="https://jap-del.github.io/blog/jumpit-devlog-sound.html">
+<meta property="og:locale" content="ko_KR">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/pages.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "점프잇 개발기 ③: 음악 파일 없이 Web Audio API로 소리 만들기", "description": "오디오 파일 없이 Web Audio API의 오실레이터로 효과음과 배경 음악을 만드는 방법, 브라우저 자동 재생 정책 대응, 음소거 저장을 다룹니다.", "datePublished": "2026-10-19", "inLanguage": "ko", "author": {"@type": "Organization", "name": "잽델 게임즈"}, "mainEntityOfPage": "https://jap-del.github.io/blog/jumpit-devlog-sound.html"}</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="/">잽델 게임즈</a>
+    <nav aria-label="사이트 메뉴">
+      <a href="/">홈</a>
+      <a href="/jumpit/">점프잇</a>
+      <a href="/lightsout/">라이트 아웃</a>
+      <a href="/blog/" aria-current="page">블로그</a>
+      <a href="/about.html">소개</a>
+      <a href="/contact.html">문의</a>
+    </nav>
+  </header>
+  <article class="post">
+    <p class="crumbs"><a href="/">홈</a> › <a href="/blog/">블로그</a> › 개발기</p>
+    <h1>점프잇 개발기 ③: 음악 파일 없이 Web Audio API로 소리 만들기</h1>
+    <p class="meta"><span class="tag">개발기</span>2026년 10월 19일 · 잽델 게임즈</p>
+    <section>
+<p>점프잇의 배경 음악과 효과음은 음악 파일을 하나도 쓰지 않았습니다. 모두 브라우저의 <strong>Web Audio API</strong>로 그 자리에서 소리를 합성합니다. 파일을 내려받을 필요가 없어 로딩이 빠르고, 저작권 걱정도 없습니다.</p>
+
+<h2>소리의 재료: 오실레이터와 게인</h2>
+<p>Web Audio API에서 소리는 노드(node)를 연결해서 만듭니다.</p>
+<ul>
+  <li><strong>오실레이터(OscillatorNode)</strong>: 정해진 주파수의 파형을 만들어 내는 소리의 원천입니다. sine(부드러운 소리), square(8비트 게임기 같은 소리), triangle(그 중간) 같은 파형을 고를 수 있습니다.</li>
+  <li><strong>게인(GainNode)</strong>: 볼륨을 조절합니다. 시간에 따라 볼륨을 바꾸면 소리의 모양(엔벨로프)이 만들어집니다.</li>
+</ul>
+
+<h2>점프 효과음 만들기</h2>
+<p>점프 소리는 짧은 시간 동안 <strong>음이 올라가면서 빠르게 사라지는</strong> 소리입니다.</p>
+<pre><code>osc.type = 'sine';
+osc.frequency.setValueAtTime(320, t);
+osc.frequency.exponentialRampToValueAtTime(700, t + 0.1);
+gain.gain.setValueAtTime(0.24, t);
+gain.gain.exponentialRampToValueAtTime(0.001, t + 0.13);</code></pre>
+<p>0.1초 동안 320Hz에서 700Hz로 음을 끌어올리고, 볼륨은 0.13초 만에 거의 0으로 줄입니다. 위로 솟는 느낌이 소리에도 담기도록 한 것입니다. 게임 오버 소리는 반대로 세 음이 차례로 내려가게 만들어 "아쉬움"을 표현했습니다.</p>
+
+<h2>배경 음악: 미리 예약하는 스케줄러</h2>
+<p>배경 음악은 짧은 멜로디(8음)와 베이스를 반복 재생합니다. 이때 <code>setTimeout</code>으로 "다음 음을 지금 재생"하면 타이머가 조금씩 밀려서 박자가 흔들립니다.</p>
+<p>그래서 오디오 시계(<code>audioContext.currentTime</code>)를 기준으로, <strong>조금 앞의 미래에 연주할 음들을 미리 예약</strong>하는 방식을 썼습니다. 25ms마다 스케줄러가 깨어나 앞으로 0.12초 안에 연주할 음이 있으면 정확한 시각을 지정해 예약해 둡니다. 자바스크립트 타이머가 조금 늦게 깨어나도 실제 소리는 오디오 시계에 맞춰 정확한 박자로 나옵니다.</p>
+
+<h2>브라우저 자동 재생 정책</h2>
+<p>요즘 브라우저는 사용자가 페이지와 상호작용하기 전에는 소리를 자동으로 재생하지 못하게 막습니다. 그래서 점프잇은 오디오 시스템을 페이지가 열릴 때가 아니라 <strong>"게임 시작"을 누르는 순간</strong> 만듭니다. 사용자의 클릭이나 탭에 이어서 만들어진 오디오는 정상적으로 재생됩니다.</p>
+
+<h2>음소거와 설정 기억</h2>
+<p>도서관이나 지하철에서도 편하게 즐길 수 있도록 음소거 버튼을 넣었습니다. 음소거를 하면 전체 볼륨을 담당하는 마스터 게인을 0으로 부드럽게 내리고, 설정은 브라우저 저장소에 남겨 다음 방문 때도 유지됩니다.</p>
+<p>탭을 다른 곳으로 옮기면 게임과 음악도 자동으로 멈춥니다. 이 부분은 <a href="/blog/mobile-web-game-tips.html">모바일 웹 게임 최적화 글</a>에서 다룹니다.</p>
+
+<h2>정리</h2>
+<ul>
+  <li>오실레이터 + 게인 조합만으로 간단한 게임 소리를 만들 수 있습니다.</li>
+  <li>음 높이와 볼륨의 변화가 소리의 느낌을 결정합니다.</li>
+  <li>배경 음악은 오디오 시계 기준으로 미리 예약해야 박자가 흔들리지 않습니다.</li>
+  <li>소리는 사용자 입력 이후에 시작해야 합니다.</li>
+</ul>
+<p>소리를 켜고 <a href="/jumpit/">점프잇</a>을 플레이하면서 박자에 맞춰 점프해 보세요.</p>
+    </section>
+  </article>
+  <section class="related">
+    <h2>함께 읽으면 좋은 글</h2>
+    <ul>
+      <li><a href="/blog/jumpit-devlog-game-loop.html">점프잇 개발기 ①: 캔버스와 게임 루프 만들기</a></li>
+      <li><a href="/blog/jumpit-devlog-physics.html">점프잇 개발기 ②: 중력, 2단 점프, 그리고 관대한 충돌 판정</a></li>
+      <li><a href="/blog/lightsout-devlog-timing.html">라이트 아웃 개발기: 웹에서 밀리초 단위로 반응속도 재기</a></li>
+    </ul>
+    <p><a href="/blog/">블로그 전체 글 보기 &rarr;</a></p>
+  </section>
+  <footer>
+    <a href="/jumpit/">점프잇</a> &nbsp;|&nbsp; <a href="/lightsout/">라이트 아웃</a> &nbsp;|&nbsp; <a href="/blog/">블로그</a> &nbsp;|&nbsp; <a href="/about.html">소개</a> &nbsp;|&nbsp; <a href="/contact.html">문의</a> &nbsp;|&nbsp; <a href="/terms.html">이용약관</a> &nbsp;|&nbsp; <a href="/privacy.html">개인정보처리방침</a><br>
+    잽델 게임즈 &copy; 2026 &nbsp;·&nbsp; 문의 <a href="mailto:jap__26@naver.com">jap__26@naver.com</a>
+  </footer>
+</div>
+</body>
+</html>
