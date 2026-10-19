@@ -1,9 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://jap-del.github.io/</loc><lastmod>2026-10-05</lastmod><priority>1.0</priority></url>
-  <url><loc>https://jap-del.github.io/guide.html</loc><lastmod>2026-10-05</lastmod><priority>0.8</priority></url>
-  <url><loc>https://jap-del.github.io/about.html</loc><lastmod>2026-10-05</lastmod><priority>0.6</priority></url>
-  <url><loc>https://jap-del.github.io/contact.html</loc><lastmod>2026-10-05</lastmod><priority>0.4</priority></url>
-  <url><loc>https://jap-del.github.io/privacy.html</loc><lastmod>2026-10-05</lastmod><priority>0.3</priority></url>
-  <url><loc>https://jap-del.github.io/terms.html</loc><lastmod>2026-10-05</lastmod><priority>0.3</priority></url>
+  <url><loc>https://jap-del.github.io/</loc><lastmod>2026-10-19</lastmod><priority>1.0</priority></url>
+  <url><loc>https://jap-del.github.io/jumpit/</loc><lastmod>2026-10-19</lastmod><priority>0.9</priority></url>
+  <url><loc>https://jap-del.github.io/lightsout/</loc><lastmod>2026-10-19</lastmod><priority>0.9</priority></url>
+  <url><loc>https://jap-del.github.io/blog/</loc><lastmod>2026-10-19</lastmod><priority>0.8</priority></url>
+  <url><loc>https://jap-del.github.io/guide.html</loc><lastmod>2026-10-19</lastmod><priority>0.7</priority></url>
+  <url><loc>https://jap-del.github.io/blog/reaction-time-basics.html</loc><lastmod>2026-10-19</lastmod><priority>0.7</priority></url>
+  <url><loc>https://jap-del.github.io/blog/f1-start-lights.html</loc><lastmod>2026-10-19</lastmod><priority>0.7</priority></url>
+  <url><loc>https://jap-del.github.io/blog/false-start-rules.html</loc><lastmod>2026-10-19</lastmod><priority>0.7</priority></url>
+  <url><loc>https://jap-del.github.io/blog/visual-vs-auditory.html</loc><lastmod>2026-10-19</lastmod><priority>0.7</priority></url>
+  <url><loc>https://jap-del.github.io/blog/improve-reaction-time.html</loc><lastmod>2026-10-19</lastmod><priority>0.7</priority></url>
+  <url><loc>https://jap-del.github.io/blog/input-lag-explained.html</loc><lastmod>2026-10-19</lastmod><priority>0.7</priority></url>
+  <url><loc>https://jap-del.github.io/blog/one-button-games.html</loc><lastmod>2026-10-19</lastmod><priority>0.7</priority></url>
+  <url><loc>https://jap-del.github.io/blog/jumpit-devlog-game-loop.html</loc><lastmod>2026-10-19</lastmod><priority>0.7</priority></url>
+  <url><loc>https://jap-del.github.io/blog/jumpit-devlog-physics.html</loc><lastmod>2026-10-19</lastmod><priority>0.7</priority></url>
+  <url><loc>https://jap-del.github.io/blog/jumpit-devlog-sound.html</loc><lastmod>2026-10-19</lastmod><priority>0.7</priority></url>
+  <url><loc>https://jap-del.github.io/blog/lightsout-devlog-timing.html</loc><lastmod>2026-10-19</lastmod><priority>0.7</priority></url>
+  <url><loc>https://jap-del.github.io/blog/mobile-web-game-tips.html</loc><lastmod>2026-10-19</lastmod><priority>0.7</priority></url>
+  <url><loc>https://jap-del.github.io/about.html</loc><lastmod>2026-10-19</lastmod><priority>0.5</priority></url>
+  <url><loc>https://jap-del.github.io/contact.html</loc><lastmod>2026-10-19</lastmod><priority>0.4</priority></url>
+  <url><loc>https://jap-del.github.io/privacy.html</loc><lastmod>2026-10-19</lastmod><priority>0.3</priority></url>
+  <url><loc>https://jap-del.github.io/terms.html</loc><lastmod>2026-10-19</lastmod><priority>0.3</priority></url>
 </urlset>
