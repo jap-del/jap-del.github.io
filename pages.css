@@ -26,7 +26,7 @@ footer a{color:var(--sub);}
 .hero{text-align:center;padding:18px 0 8px;}
 .hero h1{font-size:28px;margin:0 0 8px;}
 .hero p{color:var(--sub);font-size:15px;margin:0 auto 4px;max-width:560px;}
-.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:22px 0 14px;}
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:22px 0 14px;}
 .game-card{display:flex;flex-direction:column;background:var(--panel);border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;text-decoration:none;color:var(--text);transition:transform .15s,border-color .15s;}
 .game-card:hover{transform:translateY(-2px);border-color:rgba(255,255,255,0.22);}
 .thumb{height:140px;position:relative;overflow:hidden;}
@@ -63,3 +63,7 @@ p code,li code,td code{background:rgba(255,255,255,0.07);padding:1px 5px;border-
 .thumb.aim .t2{width:30px;height:30px;left:62%;top:22%;opacity:.55;}
 .thumb.aim .t3{width:24px;height:24px;left:70%;top:62%;opacity:.35;}
 .thumb.aim b{position:absolute;left:calc(22% + 14px);top:calc(30% + 14px);width:18px;height:18px;border:2px solid #f2f2f7;border-radius:50%;box-shadow:0 0 0 6px rgba(242,242,247,.15);}
+.thumb.snake{background:#101125;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:22px 22px;}
+.thumb.snake i{position:absolute;width:20px;height:20px;border-radius:6px;background:rgba(108,92,231,.8);}
+.thumb.snake i.hd{background:#00d2ff;}
+.thumb.snake b{position:absolute;width:16px;height:16px;border-radius:50%;background:#ffd43b;box-shadow:0 0 0 4px rgba(255,212,59,.25);}
