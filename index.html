@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>게임 허브 - 설치 없이 즐기는 무료 미니게임 (점프잇, 라이트 아웃)</title>
-<meta name="description" content="점프잇, 라이트 아웃 등 브라우저에서 바로 즐기는 무료 미니게임과 반응속도·게임 개발 이야기를 담은 사이트입니다.">
+<title>게임 허브 - 설치 없이 즐기는 무료 미니게임 (점프잇, 라이트 아웃, 에임 트레이너)</title>
+<meta name="description" content="점프잇, 라이트 아웃, 에임 트레이너 등 브라우저에서 바로 즐기는 무료 미니게임과 반응속도·게임 개발 이야기를 담은 사이트입니다.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://jap-del.github.io/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="게임 허브">
-<meta property="og:title" content="게임 허브 - 설치 없이 즐기는 무료 미니게임 (점프잇, 라이트 아웃)">
-<meta property="og:description" content="점프잇, 라이트 아웃 등 브라우저에서 바로 즐기는 무료 미니게임과 반응속도·게임 개발 이야기를 담은 사이트입니다.">
+<meta property="og:title" content="게임 허브 - 설치 없이 즐기는 무료 미니게임 (점프잇, 라이트 아웃, 에임 트레이너)">
+<meta property="og:description" content="점프잇, 라이트 아웃, 에임 트레이너 등 브라우저에서 바로 즐기는 무료 미니게임과 반응속도·게임 개발 이야기를 담은 사이트입니다.">
 <meta property="og:url" content="https://jap-del.github.io/">
 <meta property="og:locale" content="ko_KR">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
@@ -26,6 +26,7 @@
       <a href="/" aria-current="page">홈</a>
       <a href="/jumpit/">점프잇</a>
       <a href="/lightsout/">라이트 아웃</a>
+      <a href="/aim/">에임 트레이너</a>
       <a href="/blog/">블로그</a>
       <a href="/about.html">소개</a>
       <a href="/contact.html">문의</a>
@@ -54,17 +55,25 @@
         <span class="tag">반응속도</span><span class="tag">F1</span><span class="tag">측정</span>
       </div>
     </a>
+    <a class="game-card" href="/aim/">
+      <div class="thumb aim" aria-hidden="true"><i class="t1"></i><i class="t2"></i><i class="t3"></i><b></b></div>
+      <div class="body">
+        <h2>에임 트레이너</h2>
+        <p>과녁 30개를 빠르고 정확하게! 정확도와 과녁당 시간, 오버슈팅 습관까지 분석해 주는 조준 연습 게임입니다.</p>
+        <span class="tag">조준</span><span class="tag">FPS 워밍업</span><span class="tag">분석</span>
+      </div>
+    </a>
   </div>
 
   <section>
     <h2>새로 올라온 글</h2>
     <ul class="post-list">
+      <li><a href="/blog/fitts-law.html">피츠의 법칙: 작고 먼 버튼은 왜 누르기 어려울까</a><p>목표가 작고 멀수록 클릭하는 데 시간이 더 걸린다는 피츠의 법칙을 쉽게 설명하고, 게임 조준과 화면 설계에 어떻게 쓰이는지 정리했습니다.</p></li>
+      <li><a href="/blog/mouse-sensitivity-dpi.html">마우스 감도, DPI, eDPI 쉽게 정리하기</a><p>마우스 DPI와 게임 감도, eDPI와 cm/360의 뜻, 윈도우 포인터 가속을 끄는 이유, 내게 맞는 감도를 찾는 순서를 정리했습니다.</p></li>
+      <li><a href="/blog/aim-training-tips.html">에임 실력을 올리는 연습법: 플릭, 트래킹, 그리고 자세</a><p>플릭과 트래킹의 차이, 손목 에임과 팔 에임, 정확도를 먼저 챙겨야 하는 이유, 하루 10분 연습 루틴까지 에임 연습법을 정리했습니다.</p></li>
       <li><a href="/blog/reaction-time-basics.html">반응속도란 무엇일까? 측정 원리와 평균 기록</a><p>반응속도(반응시간)의 뜻, 자극이 근육까지 전달되는 과정, 단순 반응과 선택 반응의 차이, 그리고 평균 기록을 정리했습니다.</p></li>
       <li><a href="/blog/f1-start-lights.html">F1 스타트 신호의 원리: '라이트 아웃'은 어떻게 진행될까</a><p>F1 레이스 출발 신호가 진행되는 순서와 무작위 대기 시간의 의미, 드라이버에게 반응속도가 중요한 이유를 설명합니다.</p></li>
       <li><a href="/blog/false-start-rules.html">육상 100m의 부정출발 규칙: 왜 0.1초가 기준일까</a><p>육상 단거리에서 출발 반응이 0.1초보다 빠르면 부정출발로 보는 이유와, 한 번만 부정출발해도 실격되는 현재 규칙을 알아봅니다.</p></li>
-      <li><a href="/blog/jumpit-devlog-game-loop.html">점프잇 개발기 ①: 캔버스와 게임 루프 만들기</a><p>HTML5 캔버스와 requestAnimationFrame으로 브라우저 게임의 기본 뼈대인 게임 루프를 만드는 과정과, 화면 크기·고해상도 대응 방법을 설명합니다.</p></li>
-      <li><a href="/blog/jumpit-devlog-physics.html">점프잇 개발기 ②: 중력, 2단 점프, 그리고 관대한 충돌 판정</a><p>점프잇의 점프 물리, 2단 점프 구현, 억울하지 않게 만든 충돌 판정, 시간에 따라 어려워지는 난이도 곡선을 설명합니다.</p></li>
-      <li><a href="/blog/jumpit-devlog-sound.html">점프잇 개발기 ③: 음악 파일 없이 Web Audio API로 소리 만들기</a><p>오디오 파일 없이 Web Audio API의 오실레이터로 효과음과 배경 음악을 만드는 방법, 브라우저 자동 재생 정책 대응, 음소거 저장을 다룹니다.</p></li>
     </ul>
     <p><a href="/blog/">글 전체 보기 &rarr;</a></p>
   </section>
@@ -74,11 +83,12 @@
     <ul>
       <li><strong>가볍게 한 판</strong> 하고 싶다면 <a href="/jumpit/">점프잇</a>부터 시작해 보세요. 조작은 버튼 하나뿐입니다.</li>
       <li><strong>내 반응속도</strong>가 궁금하다면 <a href="/lightsout/">라이트 아웃</a>에서 다섯 번 측정해 평균을 확인해 보세요.</li>
+      <li><strong>FPS 게임 전 손 풀기</strong>가 필요하다면 <a href="/aim/">에임 트레이너</a>로 조준 감각을 깨워 보세요.</li>
       <li>기록이 잘 안 오른다면 <a href="/guide.html">점프잇 플레이 가이드</a>와 <a href="/blog/improve-reaction-time.html">반응속도 기록을 끌어올리는 방법</a>을 읽어 보세요.</li>
     </ul>
   </section>
   <footer>
-    <a href="/jumpit/">점프잇</a> &nbsp;|&nbsp; <a href="/lightsout/">라이트 아웃</a> &nbsp;|&nbsp; <a href="/blog/">블로그</a> &nbsp;|&nbsp; <a href="/about.html">소개</a> &nbsp;|&nbsp; <a href="/contact.html">문의</a> &nbsp;|&nbsp; <a href="/terms.html">이용약관</a> &nbsp;|&nbsp; <a href="/privacy.html">개인정보처리방침</a><br>
+    <a href="/jumpit/">점프잇</a> &nbsp;|&nbsp; <a href="/lightsout/">라이트 아웃</a> &nbsp;|&nbsp; <a href="/aim/">에임 트레이너</a> &nbsp;|&nbsp; <a href="/blog/">블로그</a> &nbsp;|&nbsp; <a href="/about.html">소개</a> &nbsp;|&nbsp; <a href="/contact.html">문의</a> &nbsp;|&nbsp; <a href="/terms.html">이용약관</a> &nbsp;|&nbsp; <a href="/privacy.html">개인정보처리방침</a><br>
     게임 허브 &copy; 2026 &nbsp;·&nbsp; 문의 <a href="mailto:jap__26@naver.com">jap__26@naver.com</a>
   </footer>
 </div>
