@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>터닝 스네이크 개발기: 격자 게임 루프와 입력 버퍼 - 게임 허브</title>
+<meta name="description" content="격자 기반 틱 루프, 회전 방향을 벡터로 계산하는 방법, 빠른 입력을 놓치지 않는 입력 버퍼, 빈칸에서 먹이를 고르는 방법을 코드와 함께 설명합니다.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://jap-del.github.io/blog/snake-devlog.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="게임 허브">
+<meta property="og:title" content="터닝 스네이크 개발기: 격자 게임 루프와 입력 버퍼 - 게임 허브">
+<meta property="og:description" content="격자 기반 틱 루프, 회전 방향을 벡터로 계산하는 방법, 빠른 입력을 놓치지 않는 입력 버퍼, 빈칸에서 먹이를 고르는 방법을 코드와 함께 설명합니다.">
+<meta property="og:url" content="https://jap-del.github.io/blog/snake-devlog.html">
+<meta property="og:locale" content="ko_KR">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/pages.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "터닝 스네이크 개발기: 격자 게임 루프와 입력 버퍼", "description": "격자 기반 틱 루프, 회전 방향을 벡터로 계산하는 방법, 빠른 입력을 놓치지 않는 입력 버퍼, 빈칸에서 먹이를 고르는 방법을 코드와 함께 설명합니다.", "datePublished": "2026-11-10", "inLanguage": "ko", "author": {"@type": "Organization", "name": "게임 허브"}, "mainEntityOfPage": "https://jap-del.github.io/blog/snake-devlog.html"}</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="/">게임 허브</a>
+    <nav aria-label="사이트 메뉴">
+      <a href="/">홈</a>
+      <a href="/jumpit/">점프잇</a>
+      <a href="/lightsout/">라이트 아웃</a>
+      <a href="/aim/">에임 트레이너</a>
+      <a href="/snake/">터닝 스네이크</a>
+      <a href="/blog/" aria-current="page">블로그</a>
+      <a href="/about.html">소개</a>
+      <a href="/contact.html">문의</a>
+    </nav>
+  </header>
+  <article class="post">
+    <p class="crumbs"><a href="/">홈</a> › <a href="/blog/">블로그</a> › 개발기</p>
+    <h1>터닝 스네이크 개발기: 격자 게임 루프와 입력 버퍼</h1>
+    <p class="meta"><span class="tag">개발기</span>2026년 11월 10일 · 게임 허브</p>
+    <section>
+<p>뱀 게임은 프로그래밍 입문 과제로 자주 나오지만, 막상 "손맛 좋게" 만들려면 신경 쓸 것이 꽤 있습니다. 터닝 스네이크를 만들며 고민한 부분을 정리했습니다.</p>
+
+<h2>격자와 틱: 점프잇과 다른 게임 루프</h2>
+<p><a href="/blog/jumpit-devlog-game-loop.html">점프잇</a>은 매 프레임 위치를 조금씩 움직이는 연속적인 게임이지만, 뱀 게임은 <strong>20×20 격자</strong> 위에서 한 칸씩 움직입니다. 그래서 화면 그리기와 게임 진행을 분리했습니다.</p>
+<pre><code>function loop(now){
+  var dt = now - lastT; lastT = now;
+  acc += dt;                 // 흐른 시간을 모아 두었다가
+  while(acc &gt;= tick){        // 한 틱만큼 쌓일 때마다
+    acc -= tick; step();     // 한 칸 이동
+  }
+  draw();                    // 그리기는 매 프레임
+  requestAnimationFrame(loop);
+}</code></pre>
+<p>이렇게 시간을 모아 두는 방식(누산기)을 쓰면 모니터 주사율과 상관없이 같은 속도로 움직입니다. <code>tick</code>은 처음 140ms에서 시작해 빨간 먹이를 먹을 때마다 2ms씩 줄고(최소 65ms), 파란 먹이를 먹으면 10ms 늘어납니다.</p>
+
+<h2>회전을 벡터로 계산하기</h2>
+<p>뱀의 진행 방향은 <code>{x, y}</code> 벡터로 저장합니다. 오른쪽은 (1, 0), 아래는 (0, 1)입니다. 화면 좌표는 아래로 갈수록 y가 커지므로, 90도 회전은 다음 식으로 계산됩니다.</p>
+<pre><code>// 왼쪽 회전: (x, y) → (y, -x)
+// 오른쪽 회전: (x, y) → (-y, x)
+dir = left ? { x: dir.y, y: -dir.x } : { x: -dir.y, y: dir.x };</code></pre>
+<p>오른쪽 (1, 0)에서 왼쪽 회전하면 (0, -1), 즉 위가 됩니다. 네 방향마다 if문을 쓰지 않고 한 줄로 끝나는 것이 벡터를 쓰는 장점입니다. 뱀 눈의 위치도 진행 방향에 수직인 벡터 (-y, x)를 이용해 그립니다.</p>
+
+<h2>입력 버퍼: 빠른 손을 놓치지 않기</h2>
+<p>뱀 게임에서 흔한 버그는 "버튼을 두 번 빨리 눌렀는데 한 번만 먹히는" 문제입니다. 한 틱이 지나기 전에 방향을 두 번 바꾸면, 마지막 입력으로 덮어써지기 때문입니다. 일반 뱀 게임에서는 이 때문에 한 틱 안에 반대 방향으로 꺾여 자기 몸에 부딪히는 억울한 상황도 생깁니다.</p>
+<p>터닝 스네이크는 입력을 <strong>큐(대기열)</strong>에 쌓아 두고 한 틱에 하나씩 꺼내 씁니다.</p>
+<pre><code>function turn(d){ if(queue.length &lt; 3) queue.push(d); }
+function step(){
+  if(queue.length) rotate(queue.shift());
+  // ... 한 칸 이동
+}</code></pre>
+<p>덕분에 같은 버튼을 빠르게 두 번 누르면 두 칸에 걸쳐 깔끔하게 U턴합니다. 큐 길이를 3으로 제한한 것은, 너무 많은 입력이 쌓여 한참 뒤에 엉뚱하게 꺾이는 것을 막기 위해서입니다. 자료구조 수업에서 배우는 큐가 게임 조작감에 바로 쓰이는 좋은 예입니다.</p>
+
+<h2>충돌 판정에서 꼬리 처리</h2>
+<p>몸과의 충돌을 검사할 때 놓치기 쉬운 부분이 <strong>꼬리</strong>입니다. 먹이를 먹지 않는 틱에는 머리가 한 칸 나아가는 동시에 꼬리가 한 칸 빠지므로, 머리가 방금 꼬리가 있던 칸으로 들어가는 것은 안전합니다. 그래서 먹이를 먹지 않을 때는 마지막 칸을 빼고 충돌을 검사합니다. 이 처리를 빼먹으면 꼬리를 바짝 따라가는 고급 플레이가 불가능해집니다.</p>
+
+<h2>먹이는 빈칸에서만</h2>
+<p>먹이를 무작위 위치에 놓았다가 몸과 겹치면 다시 뽑는 방식은, 몸이 길어질수록 여러 번 다시 뽑아야 해서 비효율적입니다. 터닝 스네이크는 매번 <strong>빈칸 목록을 만든 뒤 그중 하나를 고릅니다.</strong> 판이 400칸뿐이라 목록을 만드는 비용도 작고, 몸이 판을 거의 채워도 항상 한 번에 정확히 고를 수 있습니다.</p>
+<p>먹이 종류는 빨강 70%, 파랑 15%, 금색 15% 확률로 정하고, 금색 먹이는 생긴 시각을 기억해 두었다가 6초가 지나면 빨간 먹이로 바꿉니다.</p>
+
+<h2>정리</h2>
+<ul>
+  <li>격자 게임은 누산기로 틱과 그리기를 분리한다.</li>
+  <li>방향은 벡터로, 회전은 한 줄 식으로.</li>
+  <li>입력은 큐에 쌓아 한 틱에 하나씩.</li>
+  <li>충돌 검사에서 꼬리 칸을 빼 주는 것을 잊지 말 것.</li>
+</ul>
+<p>완성된 결과는 <a href="/snake/">터닝 스네이크</a>에서 확인할 수 있습니다.</p>
+    </section>
+  </article>
+  <section class="related">
+    <h2>함께 읽으면 좋은 글</h2>
+    <ul>
+      <li><a href="/blog/snake-game-history.html">뱀 게임의 역사: 아케이드에서 휴대폰까지</a></li>
+      <li><a href="/blog/snake-strategy.html">뱀 게임 공략: 몸이 길어져도 살아남는 법</a></li>
+      <li><a href="/blog/relative-controls.html">왼쪽이 왼쪽이 아닐 때: 상대 방향 조작은 왜 어려울까</a></li>
+    </ul>
+    <p><a href="/blog/">블로그 전체 글 보기 &rarr;</a></p>
+  </section>
+  <footer>
+    <a href="/jumpit/">점프잇</a> &nbsp;|&nbsp; <a href="/lightsout/">라이트 아웃</a> &nbsp;|&nbsp; <a href="/aim/">에임 트레이너</a> &nbsp;|&nbsp; <a href="/snake/">터닝 스네이크</a> &nbsp;|&nbsp; <a href="/blog/">블로그</a> &nbsp;|&nbsp; <a href="/about.html">소개</a> &nbsp;|&nbsp; <a href="/contact.html">문의</a> &nbsp;|&nbsp; <a href="/terms.html">이용약관</a> &nbsp;|&nbsp; <a href="/privacy.html">개인정보처리방침</a><br>
+    게임 허브 &copy; 2026 &nbsp;·&nbsp; 문의 <a href="mailto:jap__26@naver.com">jap__26@naver.com</a>
+  </footer>
+</div>
+</body>
+</html>
