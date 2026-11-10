@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>에임 트레이너 - 무료 조준 연습 게임 | 게임 허브</title>
+<meta name="description" content="과녁 30개를 빠르고 정확하게 맞히는 무료 에임 연습 게임. 정확도, 과녁당 평균 시간, 오버슈팅·언더슈팅 분석까지 보여 줍니다.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://jap-del.github.io/aim/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="게임 허브">
+<meta property="og:title" content="에임 트레이너 - 무료 조준 연습 게임 | 게임 허브">
+<meta property="og:description" content="과녁 30개를 빠르고 정확하게 맞히는 무료 에임 연습 게임. 정확도, 과녁당 평균 시간, 오버슈팅·언더슈팅 분석까지 보여 줍니다.">
+<meta property="og:url" content="https://jap-del.github.io/aim/">
+<meta property="og:locale" content="ko_KR">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/pages.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "VideoGame", "name": "에임 트레이너", "url": "https://jap-del.github.io/aim/", "description": "과녁 30개를 빠르고 정확하게 맞히는 무료 에임 연습 게임. 정확도, 과녁당 평균 시간, 오버슈팅·언더슈팅 분석까지 보여 줍니다.", "genre": ["조준", "반응속도"], "gamePlatform": ["Web browser", "PC", "Mobile"], "applicationCategory": "Game", "inLanguage": "ko", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}}</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="/">게임 허브</a>
+    <nav aria-label="사이트 메뉴">
+      <a href="/">홈</a>
+      <a href="/jumpit/">점프잇</a>
+      <a href="/lightsout/">라이트 아웃</a>
+      <a href="/aim/" aria-current="page">에임 트레이너</a>
+      <a href="/blog/">블로그</a>
+      <a href="/about.html">소개</a>
+      <a href="/contact.html">문의</a>
+    </nav>
+  </header>
+<style>
+  .aim-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+  .aim-head h1{margin:0;}
+  .aim-head .lead{margin:4px 0 0;}
+  .modes{display:flex;gap:6px;}
+  .mode-btn{background:transparent;border:1px solid rgba(255,255,255,.18);color:var(--sub);border-radius:999px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:inherit;}
+  .mode-btn[aria-pressed="true"]{color:#0f1020;background:linear-gradient(90deg,var(--accent),var(--accent2));border-color:transparent;font-weight:700;}
+  .mode-btn:disabled{opacity:.5;cursor:default;}
+  .arena{position:relative;width:100%;aspect-ratio:16/10;border-radius:16px;overflow:hidden;background:radial-gradient(circle at 50% 40%,#1d1f40,#101125 70%);border:1px solid rgba(255,255,255,.08);touch-action:none;user-select:none;-webkit-user-select:none;cursor:crosshair;}
+  @media (max-width:600px){.arena{aspect-ratio:4/5;}}
+  .arena canvas{display:block;width:100%;height:100%;}
+  .hud{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;font-variant-numeric:tabular-nums;font-size:14px;font-weight:700;pointer-events:none;}
+  .hud .dim{color:var(--sub);font-weight:500;}
+  .mute{pointer-events:auto;width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,.1);color:var(--text);font-size:14px;cursor:pointer;margin-left:8px;}
+  .best-line{font-size:13px;color:var(--sub);margin:8px 2px 0;}
+  .best-line strong{color:var(--text);}
+  #resultPanel{margin-top:14px;}
+  #resultPanel.hidden{display:none;}
+  .res-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .res-title .big{font-size:34px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 14px;}
+  @media (max-width:600px){.res-grid{grid-template-columns:repeat(2,1fr);}}
+  .stat{background:rgba(255,255,255,.04);border-radius:10px;padding:10px;text-align:center;}
+  .stat b{display:block;font-size:18px;color:var(--text);font-variant-numeric:tabular-nums;}
+  .stat span{font-size:11px;color:var(--sub);}
+  .analysis{display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+  #spread{width:160px;height:160px;flex-shrink:0;background:rgba(255,255,255,.03);border-radius:12px;}
+  .analysis-text{flex:1;min-width:200px;}
+  .legend{font-size:12px;color:var(--sub);}
+  .legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 4px 0 8px;vertical-align:middle;}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .btn{border:none;border-radius:999px;padding:10px 20px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0f1020;}
+  .btn.ghost{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.18);}
+  .history{list-style:none;padding:0;margin:8px 0 0;display:flex;gap:6px;flex-wrap:wrap;}
+  details{border-top:1px solid rgba(255,255,255,0.06);padding:10px 0;}
+  details:first-of-type{border-top:none;}
+  summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--text);}
+  details p{margin:8px 0 0;}
+  .history li{font-size:12px;background:rgba(255,255,255,.05);border-radius:999px;padding:4px 10px;color:var(--sub);margin:0;}
+</style>
+
+  <div class="aim-head">
+    <div>
+      <h1>에임 트레이너</h1>
+      <p class="lead">과녁 30개를 최대한 빠르고 정확하게 맞혀 보세요. 빗나간 클릭은 0.5초 벌점입니다.</p>
+    </div>
+    <div class="modes" role="group" aria-label="모드 선택">
+      <button class="mode-btn" data-mode="normal" aria-pressed="true">일반</button>
+      <button class="mode-btn" data-mode="precise" aria-pressed="false">정밀</button>
+    </div>
+  </div>
+
+  <div class="arena" id="arena">
+    <canvas id="aimCanvas" aria-label="에임 트레이너 게임 화면"></canvas>
+    <div class="hud">
+      <span id="hudLeft">남은 과녁 <span id="leftNum">30</span></span>
+      <span><span id="hudTime">0.00</span><span class="dim">초</span><button class="mute" id="muteBtn" aria-label="소리 켜기/끄기">🔊</button></span>
+    </div>
+  </div>
+  <p class="best-line" id="bestLine">이 기기의 최고 기록: <strong>-</strong></p>
+
+  <section id="resultPanel" class="hidden" aria-live="polite">
+    <div class="res-title">
+      <h2 style="margin:0">결과</h2>
+      <span class="big" id="resTime">0.00초</span>
+    </div>
+    <p id="resGrade" style="margin:4px 0 0"></p>
+    <div class="res-grid">
+      <div class="stat"><b id="resAvg">-</b><span>과녁당 평균</span></div>
+      <div class="stat"><b id="resAcc">-</b><span>정확도</span></div>
+      <div class="stat"><b id="resMiss">-</b><span>빗나간 클릭</span></div>
+      <div class="stat"><b id="resBest">-</b><span>최고 기록</span></div>
+    </div>
+    <div class="analysis">
+      <canvas id="spread" width="320" height="320" aria-label="클릭 분포"></canvas>
+      <div class="analysis-text">
+        <h3 style="margin-top:0">클릭 분석</h3>
+        <p id="resBias"></p>
+        <p id="resShoot"></p>
+        <p class="legend">과녁 중심 기준 <i style="background:#00d2ff"></i>맞힌 클릭 <i style="background:#ff6b81"></i>빗나간 클릭</p>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="againBtn">다시 하기</button>
+      <button class="btn ghost" id="shareBtn">결과 복사</button>
+    </div>
+    <ul class="history" id="history"></ul>
+  </section>
+
+  <section style="margin-top:14px">
+    <h2>에임 트레이너는 어떤 게임인가요?</h2>
+    <p><strong>에임 트레이너</strong>는 화면에 하나씩 나타나는 과녁을 마우스나 손가락으로 빠르게 맞히는 조준 연습 게임입니다. <a href="/lightsout/">라이트 아웃</a>이 신호에 반응하는 "속도"를 잰다면, 에임 트레이너는 원하는 곳으로 정확히 옮겨 누르는 "속도와 정확도"를 함께 잽니다.</p>
+    <p>FPS 게임을 하기 전 손을 푸는 워밍업으로 쓰거나, 마우스 감도를 바꾼 뒤 손에 익히는 용도로 쓰기 좋습니다. 결과 화면의 클릭 분석을 보면 내 조준 습관도 알 수 있습니다.</p>
+  </section>
+
+  <section>
+    <h2>플레이 방법</h2>
+    <ol>
+      <li>위에서 <strong>일반</strong> 또는 <strong>정밀</strong> 모드를 고릅니다. 정밀 모드는 과녁이 절반 정도로 작습니다.</li>
+      <li>화면 가운데의 시작 과녁을 맞히면 기록이 시작됩니다.</li>
+      <li>과녁은 한 번에 하나씩, 매번 다른 위치에 나타납니다. 30개를 모두 맞히면 끝입니다.</li>
+      <li>과녁 밖을 누르면 <strong>0.5초가 벌점</strong>으로 더해집니다. 무작정 빨리 누르기보다 정확히 누르는 것이 유리합니다.</li>
+      <li>게임 중 <strong>Esc</strong>를 누르면 처음부터 다시 시작합니다. 다른 탭으로 이동하면 그 판은 취소됩니다.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>결과 읽는 법</h2>
+    <table>
+      <tr><th>항목</th><th>뜻</th></tr>
+      <tr><td>기록</td><td>30개를 맞히는 데 걸린 시간 + 빗나간 클릭 벌점</td></tr>
+      <tr><td>과녁당 평균</td><td>과녁이 나타난 뒤 맞히기까지 걸린 평균 시간(ms)</td></tr>
+      <tr><td>정확도</td><td>전체 클릭 중 과녁을 맞힌 클릭의 비율</td></tr>
+      <tr><td>클릭 분포</td><td>과녁 중심을 기준으로 내 클릭이 찍힌 위치</td></tr>
+    </table>
+    <h3>오버슈팅과 언더슈팅</h3>
+    <p>결과 화면은 내 클릭이 마우스를 움직인 방향으로 과녁 중심을 <strong>지나쳐서</strong> 찍혔는지(오버슈팅), <strong>못 미쳐서</strong> 찍혔는지(언더슈팅)도 알려 줍니다. 오버슈팅이 잦다면 감도가 높거나 멈추는 타이밍이 늦은 것이고, 언더슈팅이 잦다면 감도가 낮거나 끝까지 밀어 주지 못하는 것일 수 있습니다. 감도 조절 방법은 <a href="/blog/mouse-sensitivity-dpi.html">마우스 감도와 DPI 글</a>에 정리했습니다.</p>
+    <h3>기록 등급 (일반 모드, 게임 허브 기준)</h3>
+    <table>
+      <tr><th>기록</th><th>등급</th></tr>
+      <tr><td>15초 미만</td><td>S · 아주 빠르고 정확해요</td></tr>
+      <tr><td>15~20초</td><td>A · 손이 잘 풀려 있어요</td></tr>
+      <tr><td>20~26초</td><td>B · 평균 이상이에요</td></tr>
+      <tr><td>26~34초</td><td>C · 무난해요</td></tr>
+      <tr><td>34초 이상</td><td>D · 정확도부터 챙겨 보세요</td></tr>
+    </table>
+    <p>정밀 모드는 같은 등급에 약 1.3배의 시간을 적용합니다. 등급은 이 게임 안에서 참고용으로 정한 기준입니다.</p>
+  </section>
+
+  <section>
+    <h2>기록을 올리는 팁</h2>
+    <ul>
+      <li><strong>정확도가 먼저입니다.</strong> 빗나간 클릭 한 번은 0.5초라서, 서두르다 두 번 빗나가면 과녁 하나를 천천히 맞히는 것보다 손해입니다.</li>
+      <li><strong>눈이 먼저 가고 손이 따라갑니다.</strong> 새 과녁이 뜨면 시선을 먼저 옮기고, 그다음 마우스를 한 번에 크게 옮긴 뒤 작게 보정하세요.</li>
+      <li><strong>큰 이동은 팔, 작은 보정은 손목</strong>으로 나누면 안정적입니다.</li>
+      <li><strong>같은 기기에서 비교하세요.</strong> 마우스와 화면 크기, 터치 여부에 따라 기록이 크게 달라집니다. 최고 기록도 PC와 모바일을 따로 저장합니다.</li>
+    </ul>
+    <p>원리가 궁금하다면 <a href="/blog/fitts-law.html">피츠의 법칙</a>과 <a href="/blog/aim-training-tips.html">에임 연습법</a> 글을 읽어 보세요.</p>
+  </section>
+
+  <section>
+    <h2>자주 묻는 질문</h2>
+    <details>
+      <summary>모바일에서도 할 수 있나요?</summary>
+      <p>네. 손가락으로 과녁을 탭하면 됩니다. 손가락은 마우스보다 덮는 면적이 넓어서 과녁을 조금 더 크게 표시하고, 최고 기록도 PC와 따로 저장합니다.</p>
+    </details>
+    <details>
+      <summary>기록은 어디에 저장되나요?</summary>
+      <p>최고 기록과 최근 기록은 이용 중인 브라우저에만 저장되며 서버로 보내지 않습니다. 자세한 내용은 <a href="/privacy.html">개인정보처리방침</a>을 참고하세요.</p>
+    </details>
+    <details>
+      <summary>마우스 감도는 얼마가 좋나요?</summary>
+      <p>정답은 없지만, 손목과 팔을 함께 써서 화면 끝에서 끝까지 편하게 옮길 수 있는 정도가 출발점입니다. 결과 화면에서 오버슈팅이 계속 나오면 조금 낮추고, 언더슈팅이 계속 나오면 조금 올려 보세요.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>함께 읽으면 좋은 글</h2>
+    <ul>
+      <li><a href="/blog/fitts-law.html">피츠의 법칙: 작고 먼 버튼은 왜 누르기 어려울까</a></li>
+      <li><a href="/blog/mouse-sensitivity-dpi.html">마우스 감도, DPI, eDPI 쉽게 정리하기</a></li>
+      <li><a href="/blog/aim-training-tips.html">에임 실력을 올리는 연습법</a></li>
+      <li><a href="/blog/aim-trainer-devlog.html">에임 트레이너 개발기</a></li>
+      <li><a href="/blog/input-lag-explained.html">내 기록에 숨어 있는 입력 지연</a></li>
+    </ul>
+  </section>
+
+<script>
+(function(){
+  "use strict";
+  var TOTAL = 30, PENALTY = 0.5;
+  var arena = document.getElementById('arena');
+  var canvas = document.getElementById('aimCanvas');
+  var ctx = canvas.getContext('2d');
+  var leftNum = document.getElementById('leftNum');
+  var hudTime = document.getElementById('hudTime');
+  var bestLine = document.getElementById('bestLine');
+  var resultPanel = document.getElementById('resultPanel');
+  var modeBtns = document.querySelectorAll('.mode-btn');
+  var muteBtn = document.getElementById('muteBtn');
+  var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  var device = coarse ? 'mobile' : 'pc';
+  var deviceLabel = coarse ? '모바일' : 'PC';
+
+  function load(k, d){ try{ var v = localStorage.getItem(k); return v === null ? d : v; }catch(e){ return d; } }
+  function save(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
+
+  var mode = load('aim_mode', 'normal') === 'precise' ? 'precise' : 'normal';
+  var muted = load('aim_muted', '0') === '1';
+  muteBtn.textContent = muted ? '🔇' : '🔊';
+
+  var DPR = Math.min(window.devicePixelRatio || 1, 2);
+  var W = 0, H = 0;
+  function resize(){
+    var r = arena.getBoundingClientRect();
+    W = r.width; H = r.height;
+    canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    draw();
+  }
+
+  function radius(){
+    var m = Math.min(W, H);
+    if(mode === 'precise') return Math.max(coarse ? 13 : 9, Math.min(18, m * 0.03));
+    return Math.max(coarse ? 22 : 16, Math.min(34, m * 0.055));
+  }
+
+  // state
+  var state = 'idle';      // idle | run | done
+  var target = null;       // {fx, fy, t}
+  var prev = null;         // previous target center (fx, fy)
+  var startT = 0, spawnT = 0, endTime = 0;
+  var hits = 0, misses = 0, clicks = 0;
+  var times = [], hitDots = [], missDots = [], shoots = [];
+  var effects = [];
+  var message = '';
+
+  function bestKey(){ return 'aim_best_' + mode + '_' + device; }
+  function getBest(){ var v = parseFloat(load(bestKey(), '')); return isNaN(v) ? null : v; }
+  function renderBest(){
+    var b = getBest();
+    bestLine.innerHTML = '이 기기의 최고 기록 (' + (mode === 'precise' ? '정밀' : '일반') + ', ' + deviceLabel + '): <strong>' + (b === null ? '-' : b.toFixed(2) + '초') + '</strong>';
+  }
+
+  function setMode(m){
+    if(state === 'run') return;
+    mode = m; save('aim_mode', m);
+    modeBtns.forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-mode') === m ? 'true' : 'false'); });
+    reset();
+  }
+  modeBtns.forEach(function(b){ b.addEventListener('click', function(){ setMode(b.getAttribute('data-mode')); }); });
+
+  function reset(msg){
+    state = 'idle';
+    target = { fx: 0.5, fy: 0.55, t: performance.now() };
+    prev = null; hits = 0; misses = 0; clicks = 0;
+    times = []; hitDots = []; missDots = []; shoots = []; effects = [];
+    message = msg || '';
+    leftNum.textContent = TOTAL;
+    hudTime.textContent = '0.00';
+    modeBtns.forEach(function(b){ b.disabled = false; });
+    renderBest();
+  }
+
+  function spawn(){
+    var r = radius(), mx = r + 8, myTop = r + 40, myBot = r + 8;
+    var minD = Math.min(W, H) * 0.25, fx, fy, tries = 0;
+    do {
+      var x = mx + Math.random() * (W - 2 * mx);
+      var y = myTop + Math.random() * (H - myTop - myBot);
+      fx = x / W; fy = y / H; tries++;
+      var dx = (fx - target.fx) * W, dy = (fy - target.fy) * H;
+    } while(tries < 30 && Math.sqrt(dx * dx + dy * dy) < minD);
+    prev = { fx: target.fx, fy: target.fy };
+    target = { fx: fx, fy: fy, t: performance.now() };
+    spawnT = target.t;
+  }
+
+  // audio
+  var actx = null;
+  function initAudio(){
+    if(actx) return;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if(AC){ try{ actx = new AC(); }catch(e){} }
+  }
+  function beep(freq, dur, type, vol){
+    if(muted || !actx) return;
+    var t = actx.currentTime, o = actx.createOscillator(), g = actx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + dur + 0.02);
+  }
+  muteBtn.addEventListener('pointerdown', function(e){ e.stopPropagation(); });
+  muteBtn.addEventListener('click', function(e){
+    e.stopPropagation(); muted = !muted; save('aim_muted', muted ? '1' : '0');
+    muteBtn.textContent = muted ? '🔇' : '🔊';
+  });
+
+  function onDown(e){
+    if(e.pointerType === 'mouse' && e.button !== 0) return;
+    e.preventDefault();
+    initAudio();
+    if(actx && actx.state === 'suspended') actx.resume();
+    var rect = canvas.getBoundingClientRect();
+    var x = e.clientX - rect.left, y = e.clientY - rect.top;
+    var r = radius();
+    var tx = target.fx * W, ty = target.fy * H;
+    var dx = x - tx, dy = y - ty;
+    var hit = dx * dx + dy * dy <= r * r;
+    var now = performance.now();
+
+    if(state === 'idle' || state === 'done'){
+      if(hit){
+        state = 'run'; message = '';
+        resultPanel.classList.add('hidden');
+        modeBtns.forEach(function(b){ b.disabled = true; });
+        effects.push({ x: tx, y: ty, t: now, hit: true });
+        beep(880, 0.06, 'triangle', 0.15);
+        startT = now;
+        spawn();
+      }
+      return;
+    }
+    if(state !== 'run') return;
+    clicks++;
+    if(hit){
+      hits++;
+      times.push(now - spawnT);
+      hitDots.push([dx / r, dy / r]);
+      if(prev){
+        var ux = tx - prev.fx * W, uy = ty - prev.fy * H, len = Math.sqrt(ux * ux + uy * uy);
+        if(len > 0) shoots.push((dx * ux + dy * uy) / len / r);
+      }
+      effects.push({ x: tx, y: ty, t: now, hit: true });
+      beep(880, 0.06, 'triangle', 0.15);
+      leftNum.textContent = TOTAL - hits;
+      if(hits >= TOTAL){ finish(now); } else { spawn(); }
+    } else {
+      misses++;
+      if(Math.abs(dx) < r * 3 && Math.abs(dy) < r * 3) missDots.push([dx / r, dy / r]);
+      effects.push({ x: x, y: y, t: now, hit: false });
+      beep(160, 0.12, 'square', 0.08);
+    }
+  }
+  canvas.addEventListener('pointerdown', onDown, { passive: false });
+  canvas.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+
+  function grade(t){
+    var k = mode === 'precise' ? 1.3 : 1;
+    if(t < 15 * k) return 'S · 아주 빠르고 정확해요';
+    if(t < 20 * k) return 'A · 손이 잘 풀려 있어요';
+    if(t < 26 * k) return 'B · 평균 이상이에요';
+    if(t < 34 * k) return 'C · 무난해요';
+    return 'D · 정확도부터 챙겨 보세요';
+  }
+
+  function mean(a){ if(!a.length) return 0; var s = 0; for(var i = 0; i < a.length; i++) s += a[i]; return s / a.length; }
+
+  function finish(now){
+    state = 'done';
+    var raw = (now - startT) / 1000;
+    endTime = raw + misses * PENALTY;
+    hudTime.textContent = endTime.toFixed(2);
+    modeBtns.forEach(function(b){ b.disabled = false; });
+    var best = getBest(), isNew = best === null || endTime < best;
+    if(isNew){ save(bestKey(), endTime.toFixed(2)); best = parseFloat(endTime.toFixed(2)); }
+    var acc = clicks ? hits / clicks * 100 : 0;
+
+    document.getElementById('resTime').textContent = endTime.toFixed(2) + '초';
+    document.getElementById('resGrade').innerHTML = '<strong>' + grade(endTime) + '</strong>' + (isNew ? ' · 🎉 이 기기 신기록!' : '') + '<br><span style="color:var(--sub);font-size:13px">' + (mode === 'precise' ? '정밀' : '일반') + ' 모드 · ' + deviceLabel + ' · 순수 시간 ' + raw.toFixed(2) + '초 + 벌점 ' + (misses * PENALTY).toFixed(1) + '초</span>';
+    document.getElementById('resAvg').textContent = Math.round(mean(times)) + 'ms';
+    document.getElementById('resAcc').textContent = acc.toFixed(0) + '%';
+    document.getElementById('resMiss').textContent = misses + '회';
+    document.getElementById('resBest').textContent = best.toFixed(2) + '초';
+
+    var mx = mean(hitDots.map(function(d){ return d[0]; })), my = mean(hitDots.map(function(d){ return d[1]; }));
+    var mag = Math.sqrt(mx * mx + my * my), biasTxt;
+    if(mag < 0.12){ biasTxt = '맞힌 클릭이 과녁 중심 주변에 고르게 퍼져 있어요. 특정 방향으로 치우치는 습관은 거의 없어요.'; }
+    else {
+      var h = mx > 0.08 ? '오른쪽' : (mx < -0.08 ? '왼쪽' : ''), v = my > 0.08 ? '아래쪽' : (my < -0.08 ? '위쪽' : '');
+      var dir = (h && v) ? h + ' ' + v : (h || v);
+      biasTxt = '맞힌 클릭이 평균적으로 중심보다 <strong>' + dir + '</strong>으로 과녁 반지름의 약 ' + Math.round(mag * 100) + '%만큼 치우쳐 있어요. 조준점을 볼 때 그 반대쪽을 조금 더 의식해 보세요.';
+    }
+    document.getElementById('resBias').innerHTML = biasTxt;
+
+    var s = mean(shoots), shootTxt;
+    if(shoots.length < 5){ shootTxt = ''; }
+    else if(s > 0.12){ shootTxt = '마우스를 움직인 방향으로 과녁 중심을 <strong>지나쳐서</strong> 누르는 경향(오버슈팅)이 있어요. 감도를 조금 낮추거나 멈추는 타이밍을 조금 일찍 가져가 보세요.'; }
+    else if(s < -0.12){ shootTxt = '과녁 중심에 <strong>조금 못 미쳐서</strong> 누르는 경향(언더슈팅)이 있어요. 감도를 조금 올리거나 끝까지 밀어 준다는 느낌으로 옮겨 보세요.'; }
+    else { shootTxt = '멈추는 지점이 정확해요. 지나치거나 못 미치는 경향이 거의 없어요.'; }
+    document.getElementById('resShoot').innerHTML = shootTxt;
+
+    drawSpread();
+    var hist = []; try{ hist = JSON.parse(load('aim_hist', '[]')) || []; }catch(e){ hist = []; }
+    hist.unshift({ m: mode, d: device, t: +endTime.toFixed(2), a: Math.round(acc) });
+    hist = hist.slice(0, 5); save('aim_hist', JSON.stringify(hist));
+    document.getElementById('history').innerHTML = hist.map(function(x){
+      return '<li>' + (x.m === 'precise' ? '정밀' : '일반') + ' ' + x.t.toFixed(2) + '초 · ' + x.a + '%</li>';
+    }).join('');
+    resultPanel.classList.remove('hidden');
+    renderBest();
+    target = { fx: 0.5, fy: 0.55, t: performance.now() };
+    message = '가운데 과녁을 맞히면 다시 시작';
+    if(resultPanel.scrollIntoView && window.innerHeight < 900) resultPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function drawSpread(){
+    var c = document.getElementById('spread'), g = c.getContext('2d'), S = c.width, cx = S / 2, unit = S * 0.18;
+    g.clearRect(0, 0, S, S);
+    g.strokeStyle = 'rgba(255,255,255,0.12)'; g.lineWidth = 2;
+    for(var k = 1; k <= 2; k++){ g.beginPath(); g.arc(cx, cx, unit * k, 0, Math.PI * 2); g.stroke(); }
+    g.fillStyle = 'rgba(0,210,255,0.12)'; g.beginPath(); g.arc(cx, cx, unit, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.moveTo(cx - 8, cx); g.lineTo(cx + 8, cx); g.moveTo(cx, cx - 8); g.lineTo(cx, cx + 8); g.stroke();
+    function dots(arr, col){
+      g.fillStyle = col;
+      arr.forEach(function(d){
+        var x = cx + Math.max(-2.6, Math.min(2.6, d[0])) * unit, y = cx + Math.max(-2.6, Math.min(2.6, d[1])) * unit;
+        g.beginPath(); g.arc(x, y, 6, 0, Math.PI * 2); g.fill();
+      });
+    }
+    dots(missDots, 'rgba(255,107,129,0.85)');
+    dots(hitDots, 'rgba(0,210,255,0.85)');
+  }
+
+  document.getElementById('againBtn').addEventListener('click', function(){
+    reset('가운데 과녁을 맞히면 시작');
+    arena.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  document.getElementById('shareBtn').addEventListener('click', function(){
+    var acc = clicks ? Math.round(hits / clicks * 100) : 0;
+    var text = '에임 트레이너(' + (mode === 'precise' ? '정밀' : '일반') + ') 과녁 30개 ' + endTime.toFixed(2) + '초 · 정확도 ' + acc + '% — 게임 허브 https://jap-del.github.io/aim/';
+    var btn = this;
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(text).then(function(){
+        btn.textContent = '복사됨!'; setTimeout(function(){ btn.textContent = '결과 복사'; }, 1400);
+      }).catch(function(){});
+    }
+  });
+  window.addEventListener('keydown', function(e){ if(e.key === 'Escape' && state === 'run') reset('다시 시작했어요. 가운데 과녁을 맞히세요'); });
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden && state === 'run') reset('다른 탭으로 이동해서 이번 판은 취소됐어요');
+  });
+
+  function draw(){
+    var now = performance.now();
+    ctx.clearRect(0, 0, W, H);
+    if(target){
+      var r = radius(), x = target.fx * W, y = target.fy * H;
+      var k = Math.min(1, (now - target.t) / 90);
+      var rr = r * (0.6 + 0.4 * k);
+      ctx.fillStyle = '#00d2ff'; ctx.beginPath(); ctx.arc(x, y, rr, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x, y, rr * 0.66, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#6c5ce7'; ctx.beginPath(); ctx.arc(x, y, rr * 0.36, 0, Math.PI * 2); ctx.fill();
+      if(state !== 'run'){
+        ctx.fillStyle = '#f2f2f7'; ctx.font = '600 15px -apple-system, "Malgun Gothic", sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(message || '가운데 과녁을 맞히면 시작', x, y - r - 18);
+        ctx.fillStyle = '#9a9ac0'; ctx.font = '13px -apple-system, "Malgun Gothic", sans-serif';
+        ctx.fillText('과녁 30개 · 빗나가면 +0.5초', x, y + r + 28);
+      }
+    }
+    effects = effects.filter(function(f){ return now - f.t < (f.hit ? 260 : 420); });
+    effects.forEach(function(f){
+      var p = (now - f.t) / (f.hit ? 260 : 420);
+      if(f.hit){
+        ctx.strokeStyle = 'rgba(0,210,255,' + (1 - p) + ')'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(f.x, f.y, radius() * (1 + p * 0.8), 0, Math.PI * 2); ctx.stroke();
+      } else {
+        ctx.strokeStyle = 'rgba(255,107,129,' + (1 - p) + ')'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(f.x - 7, f.y - 7); ctx.lineTo(f.x + 7, f.y + 7); ctx.moveTo(f.x + 7, f.y - 7); ctx.lineTo(f.x - 7, f.y + 7); ctx.stroke();
+      }
+    });
+    if(state === 'run') hudTime.textContent = ((now - startT) / 1000 + misses * PENALTY).toFixed(2);
+  }
+  function loop(){ draw(); requestAnimationFrame(loop); }
+
+  window.addEventListener('resize', resize);
+  setMode(mode);
+  resize();
+  reset();
+  requestAnimationFrame(loop);
+})();
+</script>
+
+  <footer>
+    <a href="/jumpit/">점프잇</a> &nbsp;|&nbsp; <a href="/lightsout/">라이트 아웃</a> &nbsp;|&nbsp; <a href="/aim/">에임 트레이너</a> &nbsp;|&nbsp; <a href="/blog/">블로그</a> &nbsp;|&nbsp; <a href="/about.html">소개</a> &nbsp;|&nbsp; <a href="/contact.html">문의</a> &nbsp;|&nbsp; <a href="/terms.html">이용약관</a> &nbsp;|&nbsp; <a href="/privacy.html">개인정보처리방침</a><br>
+    게임 허브 &copy; 2026 &nbsp;·&nbsp; 문의 <a href="mailto:jap__26@naver.com">jap__26@naver.com</a>
+  </footer>
+</div>
+</body>
+</html>
