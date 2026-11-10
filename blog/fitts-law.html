@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>피츠의 법칙: 작고 먼 버튼은 왜 누르기 어려울까 - 게임 허브</title>
+<meta name="description" content="목표가 작고 멀수록 클릭하는 데 시간이 더 걸린다는 피츠의 법칙을 쉽게 설명하고, 게임 조준과 화면 설계에 어떻게 쓰이는지 정리했습니다.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://jap-del.github.io/blog/fitts-law.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="게임 허브">
+<meta property="og:title" content="피츠의 법칙: 작고 먼 버튼은 왜 누르기 어려울까 - 게임 허브">
+<meta property="og:description" content="목표가 작고 멀수록 클릭하는 데 시간이 더 걸린다는 피츠의 법칙을 쉽게 설명하고, 게임 조준과 화면 설계에 어떻게 쓰이는지 정리했습니다.">
+<meta property="og:url" content="https://jap-del.github.io/blog/fitts-law.html">
+<meta property="og:locale" content="ko_KR">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/pages.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "피츠의 법칙: 작고 먼 버튼은 왜 누르기 어려울까", "description": "목표가 작고 멀수록 클릭하는 데 시간이 더 걸린다는 피츠의 법칙을 쉽게 설명하고, 게임 조준과 화면 설계에 어떻게 쓰이는지 정리했습니다.", "datePublished": "2026-11-10", "inLanguage": "ko", "author": {"@type": "Organization", "name": "게임 허브"}, "mainEntityOfPage": "https://jap-del.github.io/blog/fitts-law.html"}</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="/">게임 허브</a>
+    <nav aria-label="사이트 메뉴">
+      <a href="/">홈</a>
+      <a href="/jumpit/">점프잇</a>
+      <a href="/lightsout/">라이트 아웃</a>
+      <a href="/aim/">에임 트레이너</a>
+      <a href="/blog/" aria-current="page">블로그</a>
+      <a href="/about.html">소개</a>
+      <a href="/contact.html">문의</a>
+    </nav>
+  </header>
+  <article class="post">
+    <p class="crumbs"><a href="/">홈</a> › <a href="/blog/">블로그</a> › 반응속도 상식</p>
+    <h1>피츠의 법칙: 작고 먼 버튼은 왜 누르기 어려울까</h1>
+    <p class="meta"><span class="tag">반응속도 상식</span>2026년 11월 10일 · 게임 허브</p>
+    <section>
+<p>에임 트레이너에서 정밀 모드가 일반 모드보다 훨씬 어렵게 느껴지는 이유는 단순히 "과녁이 작아서"만이 아닙니다. 사람이 무언가를 가리키고 누르는 동작에는 꽤 일정한 규칙이 있는데, 이것을 <strong>피츠의 법칙(Fitts's law)</strong>이라고 부릅니다.</p>
+
+<h2>피츠의 법칙이란?</h2>
+<p>피츠의 법칙은 미국의 심리학자 폴 피츠가 1954년에 발표한 연구에서 나왔습니다. 핵심은 한 문장으로 정리됩니다.</p>
+<p><strong>목표까지의 거리가 멀수록, 목표의 크기가 작을수록 그곳을 가리키는 데 시간이 더 걸린다.</strong></p>
+<p>당연해 보이지만, 중요한 점은 이 관계가 대략적인 느낌이 아니라 <strong>식으로 꽤 잘 예측된다</strong>는 것입니다. 흔히 쓰이는 형태는 다음과 같습니다.</p>
+<pre><code>이동 시간 = a + b × log₂(거리 ÷ 크기 + 1)</code></pre>
+<p>여기서 a와 b는 사람과 입력 장치에 따라 정해지는 값입니다. 괄호 안의 log 부분을 <strong>난이도 지수</strong>라고 부르는데, 거리와 크기의 <strong>비율</strong>이 난이도를 결정한다는 점이 핵심입니다.</p>
+
+<h2>비율이 같으면 난이도도 같다</h2>
+<p>예를 들어 200픽셀 떨어진 지름 20픽셀 과녁과, 400픽셀 떨어진 지름 40픽셀 과녁은 거리 ÷ 크기 값이 둘 다 10입니다. 피츠의 법칙에 따르면 두 경우의 난이도는 거의 같습니다. 멀어진 만큼 과녁이 커졌기 때문입니다.</p>
+<p>반대로 거리는 그대로인데 과녁 크기만 절반이 되면 난이도 지수가 올라가 시간이 늘어납니다. 에임 트레이너의 정밀 모드가 바로 이 경우입니다.</p>
+
+<h2>log가 들어가는 이유</h2>
+<p>마우스를 목표로 옮기는 동작은 한 번에 끝나지 않습니다. 먼저 크게 한 번 휙 움직이고, 거의 다 왔을 때 작게 몇 번 보정합니다. 목표가 작을수록 이 보정 단계가 늘어납니다. 거리가 두 배가 되어도 시간이 두 배가 되지 않고 조금만 늘어나는 것은, 큰 이동은 빠르게 끝나고 시간 대부분이 마지막 보정에 쓰이기 때문입니다.</p>
+
+<h2>화면 설계에 쓰이는 피츠의 법칙</h2>
+<p>피츠의 법칙은 게임뿐 아니라 우리가 매일 쓰는 화면 설계에도 쓰입니다.</p>
+<ul>
+  <li><strong>중요한 버튼은 크게</strong>: 결제, 확인처럼 자주 누르는 버튼을 크게 만드는 이유입니다.</li>
+  <li><strong>화면 가장자리는 무한히 큰 목표</strong>: 마우스는 화면 끝을 넘어가지 않으므로, 모서리나 가장자리에 붙은 메뉴는 대충 밀어도 정확히 닿습니다. 운영체제가 작업 표시줄이나 메뉴를 화면 끝에 두는 이유 중 하나입니다.</li>
+  <li><strong>자주 쓰는 기능은 가까이</strong>: 마우스 커서 근처에 바로 뜨는 오른쪽 클릭 메뉴는 이동 거리를 줄여 줍니다.</li>
+</ul>
+
+<h2>게임 조준에 적용하면</h2>
+<ul>
+  <li><strong>과녁이 멀 때 서두르면 손해</strong>: 큰 이동에서 속도를 내는 것보다 마지막 보정을 정확히 하는 것이 전체 시간을 줄입니다.</li>
+  <li><strong>감도가 너무 높으면 작은 목표가 어려워짐</strong>: 손의 작은 떨림도 크게 움직여 보정 횟수가 늘어납니다.</li>
+  <li><strong>정확도 연습이 속도 연습</strong>: 보정이 한 번에 끝나면 그만큼 시간이 줄어듭니다.</li>
+</ul>
+
+<h2>직접 확인해 보기</h2>
+<p><a href="/aim/">에임 트레이너</a>에서 일반 모드와 정밀 모드를 번갈아 해 보세요. 과녁당 평균 시간이 얼마나 늘어나는지 보면 피츠의 법칙을 직접 느낄 수 있습니다. 감도 설정은 <a href="/blog/mouse-sensitivity-dpi.html">마우스 감도와 DPI 글</a>에서 이어서 다룹니다.</p>
+    </section>
+  </article>
+  <section class="related">
+    <h2>함께 읽으면 좋은 글</h2>
+    <ul>
+      <li><a href="/blog/mouse-sensitivity-dpi.html">마우스 감도, DPI, eDPI 쉽게 정리하기</a></li>
+      <li><a href="/blog/aim-training-tips.html">에임 실력을 올리는 연습법: 플릭, 트래킹, 그리고 자세</a></li>
+      <li><a href="/blog/aim-trainer-devlog.html">에임 트레이너 개발기: 클릭 판정부터 오버슈팅 분석까지</a></li>
+    </ul>
+    <p><a href="/blog/">블로그 전체 글 보기 &rarr;</a></p>
+  </section>
+  <footer>
+    <a href="/jumpit/">점프잇</a> &nbsp;|&nbsp; <a href="/lightsout/">라이트 아웃</a> &nbsp;|&nbsp; <a href="/aim/">에임 트레이너</a> &nbsp;|&nbsp; <a href="/blog/">블로그</a> &nbsp;|&nbsp; <a href="/about.html">소개</a> &nbsp;|&nbsp; <a href="/contact.html">문의</a> &nbsp;|&nbsp; <a href="/terms.html">이용약관</a> &nbsp;|&nbsp; <a href="/privacy.html">개인정보처리방침</a><br>
+    게임 허브 &copy; 2026 &nbsp;·&nbsp; 문의 <a href="mailto:jap__26@naver.com">jap__26@naver.com</a>
+  </footer>
+</div>
+</body>
+</html>
