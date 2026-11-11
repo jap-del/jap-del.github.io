@@ -4,19 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>터닝 스네이크 개발기: 격자 게임 루프와 입력 버퍼 - 게임 허브</title>
-<meta name="description" content="격자 기반 틱 루프, 회전 방향을 벡터로 계산하는 방법, 빠른 입력을 놓치지 않는 입력 버퍼, 빈칸에서 먹이를 고르는 방법을 코드와 함께 설명합니다.">
+<meta name="description" content="격자 기반 틱 루프, 방향을 벡터로 다루고 역방향 입력을 막는 방법, 빠른 입력을 놓치지 않는 입력 버퍼, 빈칸에서 먹이를 고르는 방법을 코드와 함께 설명합니다.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://jap-del.github.io/blog/snake-devlog.html">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="게임 허브">
 <meta property="og:title" content="터닝 스네이크 개발기: 격자 게임 루프와 입력 버퍼 - 게임 허브">
-<meta property="og:description" content="격자 기반 틱 루프, 회전 방향을 벡터로 계산하는 방법, 빠른 입력을 놓치지 않는 입력 버퍼, 빈칸에서 먹이를 고르는 방법을 코드와 함께 설명합니다.">
+<meta property="og:description" content="격자 기반 틱 루프, 방향을 벡터로 다루고 역방향 입력을 막는 방법, 빠른 입력을 놓치지 않는 입력 버퍼, 빈칸에서 먹이를 고르는 방법을 코드와 함께 설명합니다.">
 <meta property="og:url" content="https://jap-del.github.io/blog/snake-devlog.html">
 <meta property="og:locale" content="ko_KR">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="/pages.css">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "터닝 스네이크 개발기: 격자 게임 루프와 입력 버퍼", "description": "격자 기반 틱 루프, 회전 방향을 벡터로 계산하는 방법, 빠른 입력을 놓치지 않는 입력 버퍼, 빈칸에서 먹이를 고르는 방법을 코드와 함께 설명합니다.", "datePublished": "2026-11-10", "inLanguage": "ko", "author": {"@type": "Organization", "name": "게임 허브"}, "mainEntityOfPage": "https://jap-del.github.io/blog/snake-devlog.html"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "터닝 스네이크 개발기: 격자 게임 루프와 입력 버퍼", "description": "격자 기반 틱 루프, 방향을 벡터로 다루고 역방향 입력을 막는 방법, 빠른 입력을 놓치지 않는 입력 버퍼, 빈칸에서 먹이를 고르는 방법을 코드와 함께 설명합니다.", "datePublished": "2026-11-10", "inLanguage": "ko", "author": {"@type": "Organization", "name": "게임 허브"}, "mainEntityOfPage": "https://jap-del.github.io/blog/snake-devlog.html"}</script>
 </head>
 <body>
 <div class="wrap">
@@ -53,22 +53,31 @@
 }</code></pre>
 <p>이렇게 시간을 모아 두는 방식(누산기)을 쓰면 모니터 주사율과 상관없이 같은 속도로 움직입니다. <code>tick</code>은 처음 140ms에서 시작해 빨간 먹이를 먹을 때마다 2ms씩 줄고(최소 65ms), 파란 먹이를 먹으면 10ms 늘어납니다.</p>
 
-<h2>회전을 벡터로 계산하기</h2>
-<p>뱀의 진행 방향은 <code>{x, y}</code> 벡터로 저장합니다. 오른쪽은 (1, 0), 아래는 (0, 1)입니다. 화면 좌표는 아래로 갈수록 y가 커지므로, 90도 회전은 다음 식으로 계산됩니다.</p>
-<pre><code>// 왼쪽 회전: (x, y) → (y, -x)
-// 오른쪽 회전: (x, y) → (-y, x)
-dir = left ? { x: dir.y, y: -dir.x } : { x: -dir.y, y: dir.x };</code></pre>
-<p>오른쪽 (1, 0)에서 왼쪽 회전하면 (0, -1), 즉 위가 됩니다. 네 방향마다 if문을 쓰지 않고 한 줄로 끝나는 것이 벡터를 쓰는 장점입니다. 뱀 눈의 위치도 진행 방향에 수직인 벡터 (-y, x)를 이용해 그립니다.</p>
+<h2>방향은 벡터로, 역방향은 막기</h2>
+<p>뱀의 진행 방향은 <code>{x, y}</code> 벡터로 저장합니다. 오른쪽은 (1, 0), 아래는 (0, 1), 위는 (0, -1)입니다. 화면 좌표는 아래로 갈수록 y가 커지기 때문입니다. 키보드 입력도 같은 형태로 바꿔 두면 처리가 단순해집니다.</p>
+<pre><code>var KEYS = { ArrowUp:[0,-1], ArrowDown:[0,1], ArrowLeft:[-1,0], ArrowRight:[1,0] };</code></pre>
+<p>뱀 게임에서 꼭 막아야 하는 입력이 <strong>정반대 방향</strong>입니다. 오른쪽으로 가는 뱀이 바로 왼쪽으로 돌면 머리가 목에 부딪혀 즉시 게임이 끝나 버립니다. 벡터로 저장해 두면 "두 벡터의 합이 0"인지만 보면 되므로 한 줄로 검사할 수 있습니다.</p>
+<pre><code>if(dx === -p.x &amp;&amp; dy === -p.y) return; // 정반대면 무시</code></pre>
+<p>뱀 눈의 위치도 진행 방향에 수직인 벡터 (-y, x)를 이용해 그립니다. 네 방향마다 if문을 쓰지 않아도 된다는 것이 벡터를 쓰는 장점입니다.</p>
+<p>참고로 처음 버전은 뱀 기준으로 왼쪽·오른쪽만 도는 방식이었습니다. 이때는 회전을 <code>(x, y) → (y, -x)</code>, <code>(x, y) → (-y, x)</code> 식으로 계산했는데, 플레이해 보니 화면 기준 조작이 훨씬 직관적이어서 지금 방식으로 바꿨습니다. 그 이야기는 <a href="/blog/relative-controls.html">상대 방향 조작 글</a>에 정리했습니다.</p>
+
+<h2>모바일 입력: 스와이프와 탭</h2>
+<p>휴대폰에서는 손가락이 처음 닿은 곳에서 24px 이상 움직이면 더 크게 움직인 축(가로 또는 세로)으로 방향을 정합니다. 손가락을 떼지 않고 다시 움직이면 그 지점부터 새로 계산해서 연속 스와이프도 됩니다. 스와이프 없이 톡 탭하면, 뱀 머리를 기준으로 탭한 쪽으로 꺾습니다. 뱀이 가로로 가고 있다면 머리보다 위를 탭했는지 아래를 탭했는지만 보면 됩니다.</p>
 
 <h2>입력 버퍼: 빠른 손을 놓치지 않기</h2>
-<p>뱀 게임에서 흔한 버그는 "버튼을 두 번 빨리 눌렀는데 한 번만 먹히는" 문제입니다. 한 틱이 지나기 전에 방향을 두 번 바꾸면, 마지막 입력으로 덮어써지기 때문입니다. 일반 뱀 게임에서는 이 때문에 한 틱 안에 반대 방향으로 꺾여 자기 몸에 부딪히는 억울한 상황도 생깁니다.</p>
-<p>터닝 스네이크는 입력을 <strong>큐(대기열)</strong>에 쌓아 두고 한 틱에 하나씩 꺼내 씁니다.</p>
-<pre><code>function turn(d){ if(queue.length &lt; 3) queue.push(d); }
+<p>뱀 게임에서 흔한 버그는 "키를 두 번 빨리 눌렀는데 한 번만 먹히는" 문제입니다. 한 틱이 지나기 전에 방향을 두 번 바꾸면, 마지막 입력으로 덮어써지기 때문입니다. 더 나쁜 경우도 있습니다. 오른쪽으로 가는 중에 한 틱 안에 ↑, ←를 누르면 각각은 정상 입력인데, 합쳐 보면 오른쪽에서 바로 왼쪽으로 꺾인 셈이 되어 자기 몸에 부딪히는 억울한 상황이 생깁니다.</p>
+<p>터닝 스네이크는 입력을 <strong>큐(대기열)</strong>에 쌓아 두고 한 틱에 하나씩 꺼내 씁니다. 역방향 검사도 현재 방향이 아니라 <strong>큐의 마지막 방향</strong>과 비교합니다.</p>
+<pre><code>function planned(){ return queue.length ? queue[queue.length - 1] : dir; }
+function go(dx, dy){
+  var p = planned();
+  if((dx === p.x &amp;&amp; dy === p.y) || (dx === -p.x &amp;&amp; dy === -p.y)) return;
+  if(queue.length &lt; 3) queue.push({ x: dx, y: dy });
+}
 function step(){
-  if(queue.length) rotate(queue.shift());
+  if(queue.length) dir = queue.shift();
   // ... 한 칸 이동
 }</code></pre>
-<p>덕분에 같은 버튼을 빠르게 두 번 누르면 두 칸에 걸쳐 깔끔하게 U턴합니다. 큐 길이를 3으로 제한한 것은, 너무 많은 입력이 쌓여 한참 뒤에 엉뚱하게 꺾이는 것을 막기 위해서입니다. 자료구조 수업에서 배우는 큐가 게임 조작감에 바로 쓰이는 좋은 예입니다.</p>
+<p>덕분에 ↑, ←를 빠르게 이어 누르면 두 칸에 걸쳐 깔끔하게 U턴합니다. 큐 길이를 3으로 제한한 것은, 너무 많은 입력이 쌓여 한참 뒤에 엉뚱하게 꺾이는 것을 막기 위해서입니다. 자료구조 수업에서 배우는 큐가 게임 조작감에 바로 쓰이는 좋은 예입니다.</p>
 
 <h2>충돌 판정에서 꼬리 처리</h2>
 <p>몸과의 충돌을 검사할 때 놓치기 쉬운 부분이 <strong>꼬리</strong>입니다. 먹이를 먹지 않는 틱에는 머리가 한 칸 나아가는 동시에 꼬리가 한 칸 빠지므로, 머리가 방금 꼬리가 있던 칸으로 들어가는 것은 안전합니다. 그래서 먹이를 먹지 않을 때는 마지막 칸을 빼고 충돌을 검사합니다. 이 처리를 빼먹으면 꼬리를 바짝 따라가는 고급 플레이가 불가능해집니다.</p>
@@ -80,7 +89,7 @@ function step(){
 <h2>정리</h2>
 <ul>
   <li>격자 게임은 누산기로 틱과 그리기를 분리한다.</li>
-  <li>방향은 벡터로, 회전은 한 줄 식으로.</li>
+  <li>방향은 벡터로, 정반대 입력은 큐의 마지막 방향과 비교해 막는다.</li>
   <li>입력은 큐에 쌓아 한 틱에 하나씩.</li>
   <li>충돌 검사에서 꼬리 칸을 빼 주는 것을 잊지 말 것.</li>
 </ul>
