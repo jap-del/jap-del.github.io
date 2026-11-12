@@ -12,6 +12,10 @@
 <meta property="og:title" content="클릭 속도 테스트 - CPS 측정 (1초·5초·10초) | 게임 허브">
 <meta property="og:description" content="1초에 몇 번 클릭할 수 있을까? 1초·5초·10초·30초 모드로 클릭 속도(CPS)를 측정하고 구간별 속도 그래프와 등급을 확인하세요. PC와 모바일 모두 지원합니다.">
 <meta property="og:url" content="https://jap-del.github.io/cps/">
+<meta property="og:image" content="https://jap-del.github.io/og/cps.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <meta property="og:locale" content="ko_KR">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
@@ -121,7 +125,7 @@
     <p style="font-size:12px;color:var(--sub);margin:6px 0 0">막대는 구간별 클릭 속도(CPS)입니다.</p>
     <div class="btn-row">
       <button class="btn" id="cpAgain">다시 하기</button>
-      <button class="btn ghost" id="cpShare">결과 복사</button>
+      <button class="btn ghost" id="cpShare">도전장 보내기</button>
     </div>
     <ul class="history" id="cpHist"></ul>
   </section>
@@ -181,6 +185,10 @@
     <details>
       <summary>마우스에 따라 기록이 달라지나요?</summary>
       <p>달라질 수 있습니다. 버튼을 누르는 깊이와 반발력이 마우스마다 다르고, 오래 쓴 마우스는 한 번 눌렀는데 두 번 클릭되는 고장(더블 클릭 현상)이 생기기도 합니다. 기록이 갑자기 비정상적으로 높다면 마우스 상태를 확인해 보세요.</p>
+    </details>
+    <details>
+      <summary>친구와 기록을 겨룰 수 있나요?</summary>
+      <p>결과 화면의 <strong>도전장 보내기</strong>를 누르면 내 기록이 담긴 링크가 만들어집니다. 친구가 그 링크로 들어오면 화면 위에 내 기록과 모드가 표시되고, 측정이 끝나면 누가 이겼는지 바로 알려 줍니다.</p>
     </details>
     <details>
       <summary>기록은 어디에 저장되나요?</summary>
@@ -304,6 +312,7 @@
     hist.unshift({ c: Math.round(cps * 100) / 100, s: sec }); hist = hist.slice(0, 6); save('cps_hist', JSON.stringify(hist));
     document.getElementById('cpHist').innerHTML = hist.map(function(h){ return '<li>' + h.s + '초 · ' + Number(h.c).toFixed(2) + ' CPS</li>'; }).join('');
     result.classList.remove('hidden'); renderBest();
+    if(window.GH && n > 0) GH.result(cps.toFixed(2), sec);
     setTimeout(function(){ if(state === 'lock'){ idleView(); big.textContent = cps.toFixed(2) + ' CPS'; small.textContent = '다시 클릭하면 새로 시작합니다'; } }, 1000);
   }
 
@@ -314,6 +323,7 @@
   area.addEventListener('contextmenu', function(e){ e.preventDefault(); });
   document.getElementById('cpAgain').addEventListener('click', function(){ if(state !== 'run'){ idleView(); area.scrollIntoView({ behavior:'smooth', block:'center' }); } });
   document.getElementById('cpShare').addEventListener('click', function(){
+    if(window.GH){ GH.share(this, lastCps.toFixed(2), sec, '클릭 속도 테스트 ' + sec + '초 모드 ' + lastCps.toFixed(2) + ' CPS! 이 기록 이길 수 있어? 🖱️'); return; }
     var btn = this, text = '클릭 속도 테스트 ' + sec + '초 모드 ' + lastCps.toFixed(2) + ' CPS! — 게임 허브 https://jap-del.github.io/cps/';
     if(navigator.clipboard){ navigator.clipboard.writeText(text).then(function(){ btn.textContent = '복사됨!'; setTimeout(function(){ btn.textContent = '결과 복사'; }, 1400); }).catch(function(){}); }
   });
@@ -329,5 +339,6 @@
     게임 허브 &copy; 2026 &nbsp;·&nbsp; 문의 <a href="mailto:jap__26@naver.com">jap__26@naver.com</a>
   </footer>
 </div>
+<script src="/challenge.js"></script>
 </body>
 </html>
