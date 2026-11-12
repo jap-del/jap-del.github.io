@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>전체 랭킹 - 게임별 TOP 기록 | 게임 허브</title>
+<meta name="description" content="점프잇, 라이트 아웃, 에임 트레이너, 터닝 스네이크, 클릭 속도 테스트, 숫자 기억력 테스트의 전체 랭킹 TOP 10을 한곳에서 확인하세요.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://jap-del.github.io/ranking/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="게임 허브">
+<meta property="og:title" content="전체 랭킹 - 게임별 TOP 기록 | 게임 허브">
+<meta property="og:description" content="점프잇, 라이트 아웃, 에임 트레이너, 터닝 스네이크, 클릭 속도 테스트, 숫자 기억력 테스트의 전체 랭킹 TOP 10을 한곳에서 확인하세요.">
+<meta property="og:url" content="https://jap-del.github.io/ranking/">
+<meta property="og:image" content="https://jap-del.github.io/og/home.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:locale" content="ko_KR">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/pages.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="/">게임 허브</a>
+    <nav aria-label="사이트 메뉴">
+      <a href="/">홈</a>
+      <a href="/jumpit/">점프잇</a>
+      <a href="/lightsout/">라이트 아웃</a>
+      <a href="/aim/">에임 트레이너</a>
+      <a href="/snake/">터닝 스네이크</a>
+      <a href="/cps/">클릭 테스트</a>
+      <a href="/memory/">기억력 테스트</a>
+      <a href="/ranking/" aria-current="page">랭킹</a>
+      <a href="/blog/">블로그</a>
+      <a href="/about.html">소개</a>
+      <a href="/contact.html">문의</a>
+    </nav>
+  </header>
+<style>
+  .rk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0 14px;}
+  .rk-grid .ghr{margin:0 0 14px;}
+  .rk-me{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px;}
+  .rk-me input[type=text]{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:8px;color:var(--text);padding:7px 10px;font-size:14px;width:160px;font-family:inherit;}
+  .rk-me label{display:inline-flex;gap:6px;align-items:center;cursor:pointer;color:var(--sub);font-size:13px;}
+  .rk-me .ok{font-size:12px;color:#51cf66;}
+  details{border-top:1px solid rgba(255,255,255,0.06);padding:10px 0;}
+  details:first-of-type{border-top:none;}
+  summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--text);}
+  details p{margin:8px 0 0;}
+</style>
+
+  <h1>전체 랭킹</h1>
+  <p class="lead">게임 허브의 모든 게임 기록을 한곳에서 확인하세요. 기록을 세우면 자동으로 랭킹에 올라가고, 더 좋은 기록을 내면 바로 갱신됩니다.</p>
+
+  <section>
+    <h2>내 랭킹 설정</h2>
+    <div class="rk-me">
+      <span>닉네임</span>
+      <input type="text" id="rkName" maxlength="12" aria-label="랭킹 닉네임">
+      <label><input type="checkbox" id="rkOn"> 랭킹에 내 기록 올리기</label>
+      <span class="ok" id="rkOk"></span>
+    </div>
+    <p style="margin:10px 0 0;font-size:13px">닉네임을 바꾸면 이미 랭킹에 올라간 내 기록의 이름도 함께 바뀝니다. 실명이나 연락처 같은 개인정보는 쓰지 말아 주세요.</p>
+  </section>
+
+  <div class="rk-grid">
+    <div data-ghr-game="jumpit"></div>
+    <div data-ghr-game="lightsout"></div>
+    <div data-ghr-game="aim"></div>
+    <div data-ghr-game="snake"></div>
+    <div data-ghr-game="cps"></div>
+    <div data-ghr-game="memory"></div>
+  </div>
+
+  <section>
+    <h2>랭킹은 이렇게 정해져요</h2>
+    <table>
+      <tr><th>게임</th><th>순위 기준</th><th>모드</th></tr>
+      <tr><td><a href="/jumpit/">점프잇</a></td><td>점수가 높을수록</td><td>-</td></tr>
+      <tr><td><a href="/lightsout/">라이트 아웃</a></td><td>반응 시간(ms)이 짧을수록</td><td>-</td></tr>
+      <tr><td><a href="/aim/">에임 트레이너</a></td><td>과녁 30개 완료 시간이 짧을수록</td><td>일반 · 정밀 따로</td></tr>
+      <tr><td><a href="/snake/">터닝 스네이크</a></td><td>점수가 높을수록</td><td>-</td></tr>
+      <tr><td><a href="/cps/">클릭 속도 테스트</a></td><td>CPS가 높을수록</td><td>1초 · 5초 · 10초 · 30초 따로</td></tr>
+      <tr><td><a href="/memory/">숫자 기억력 테스트</a></td><td>기억한 자릿수가 많을수록</td><td>순서대로 · 거꾸로 따로</td></tr>
+    </table>
+    <ul>
+      <li>게임(모드)마다 한 사람당 <strong>최고 기록 하나</strong>만 올라갑니다. 더 낮은 기록을 내도 랭킹 기록은 내려가지 않습니다.</li>
+      <li>같은 기록이면 먼저 세운 사람이 위에 표시됩니다.</li>
+      <li>사람이 낼 수 없는 기록(예: 클릭 속도 25 CPS 초과)은 자동 클릭이나 조작으로 보고 등록하지 않습니다.</li>
+      <li>랭킹은 기기(브라우저)마다 따로 관리됩니다. 브라우저 데이터를 지우면 새 참가자로 등록됩니다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>자주 묻는 질문</h2>
+    <details>
+      <summary>랭킹에 올라가기 싫으면 어떻게 하나요?</summary>
+      <p>위의 <strong>랭킹에 내 기록 올리기</strong>를 끄면 이후 기록은 랭킹에 올라가지 않습니다. 이미 올라간 기록을 지우고 싶다면 <a href="/contact.html">문의</a> 페이지로 게임 이름과 닉네임을 알려 주세요.</p>
+    </details>
+    <details>
+      <summary>어떤 정보가 저장되나요?</summary>
+      <p>닉네임, 게임과 모드, 최고 기록, 갱신 시각, 그리고 기기를 구분하기 위한 임의의 값이 저장됩니다. 이 임의의 값은 화면이나 다른 이용자에게 공개되지 않습니다. 자세한 내용은 <a href="/privacy.html">개인정보처리방침</a>을 참고하세요.</p>
+    </details>
+    <details>
+      <summary>부적절한 닉네임을 봤어요.</summary>
+      <p><a href="/contact.html">문의</a> 페이지로 게임 이름과 닉네임을 알려 주시면 확인 후 삭제합니다.</p>
+    </details>
+  </section>
+
+<script src="/ranking.js"></script>
+<script>
+(function(){
+  if(!window.GHR) return;
+  var inp = document.getElementById('rkName'), chk = document.getElementById('rkOn'), ok = document.getElementById('rkOk');
+  inp.value = GHR.name();
+  var off = false; try{ off = localStorage.getItem('gh_rank_off') === '1'; }catch(e){}
+  chk.checked = !off;
+  inp.addEventListener('change', function(){ GHR.setName(inp.value); inp.value = GHR.name(); ok.textContent = '저장했어요'; setTimeout(function(){ ok.textContent = ''; }, 1500); });
+  chk.addEventListener('change', function(){ try{ localStorage.setItem('gh_rank_off', chk.checked ? '0' : '1'); }catch(e){} ok.textContent = chk.checked ? '랭킹 참여 중' : '랭킹 참여 안 함'; setTimeout(function(){ ok.textContent = ''; }, 1500); });
+})();
+</script>
+
+  <footer>
+    <a href="/jumpit/">점프잇</a> &nbsp;|&nbsp; <a href="/lightsout/">라이트 아웃</a> &nbsp;|&nbsp; <a href="/aim/">에임 트레이너</a> &nbsp;|&nbsp; <a href="/snake/">터닝 스네이크</a> &nbsp;|&nbsp; <a href="/cps/">클릭 속도 테스트</a> &nbsp;|&nbsp; <a href="/memory/">숫자 기억력 테스트</a> &nbsp;|&nbsp; <a href="/ranking/">전체 랭킹</a> &nbsp;|&nbsp; <a href="/blog/">블로그</a> &nbsp;|&nbsp; <a href="/about.html">소개</a> &nbsp;|&nbsp; <a href="/contact.html">문의</a> &nbsp;|&nbsp; <a href="/terms.html">이용약관</a> &nbsp;|&nbsp; <a href="/privacy.html">개인정보처리방침</a><br>
+    게임 허브 &copy; 2026 &nbsp;·&nbsp; 문의 <a href="mailto:jap__26@naver.com">jap__26@naver.com</a>
+  </footer>
+</div>
+</body>
+</html>
