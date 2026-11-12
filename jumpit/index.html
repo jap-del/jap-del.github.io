@@ -13,9 +13,12 @@
 <meta property="og:title" content="점프잇 - 심심할 때 한 판!">
 <meta property="og:description" content="장애물을 피해 점프하는 심플한 미니게임. 지금 바로 플레이해보세요!">
 <meta property="og:url" content="https://jap-del.github.io/jumpit/">
+<meta property="og:image" content="https://jap-del.github.io/og/jumpit.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:site_name" content="게임 허브">
 <meta property="og:locale" content="ko_KR">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
 
@@ -274,7 +277,7 @@
       <p id="newBestMsg" class="hidden">🎉 신기록 달성!</p>
       <div class="over-btn-row">
         <button class="btn" id="retryBtn">다시 도전</button>
-        <button class="btn ghost" id="shareBtn">결과 공유</button>
+        <button class="btn ghost" id="shareBtn">도전장 보내기</button>
       </div>
     </div>
   </div>
@@ -306,7 +309,7 @@
         <li>PC에서는 <strong>스페이스바</strong> 또는 <strong>위쪽 방향키(↑)</strong>, 모바일에서는 <strong>화면 탭</strong>으로 점프합니다.</li>
         <li>공중에서 한 번 더 누르면 <strong>2단 점프</strong>를 할 수 있습니다. 땅에 닿으면 점프 횟수가 다시 2회로 충전됩니다.</li>
         <li>분홍색 장애물에 닿으면 게임이 끝납니다. 버틴 시간과 속도에 따라 점수가 올라갑니다.</li>
-        <li>게임이 끝나면 <strong>다시 도전</strong>으로 바로 재시작하거나, <strong>결과 공유</strong>로 친구에게 기록을 보낼 수 있습니다.</li>
+        <li>게임이 끝나면 <strong>다시 도전</strong>으로 바로 재시작하거나, <strong>도전장 보내기</strong>로 내 기록이 담긴 링크를 친구에게 보낼 수 있습니다. 친구가 링크로 들어오면 화면 위에 내 기록이 표시되고, 게임이 끝나면 승패를 바로 알려 줍니다.</li>
       </ol>
     </section>
 
@@ -646,6 +649,7 @@
     stopBgm();
     playGameOverSfx();
     saveHistoryEntry(score);
+    if(window.GH) GH.result(score.toFixed(2));
     if(isNew && localStorage.getItem(NICK_KEY)) submitScore();
   }
 
@@ -670,6 +674,7 @@
 
   shareBtn.addEventListener('click', function(e){
     e.stopPropagation();
+    if(window.GH){ GH.share(shareBtn, score.toFixed(2), null, '점프잇에서 ' + score.toFixed(2) + '점 기록했어요! 이 기록 이길 수 있어? 🎮'); return; }
     var text = '점프잇에서 ' + score.toFixed(2) + '점 기록했어요! 너도 도전해봐 🎮';
     var url = location.href.split('?')[0];
     if(navigator.share){
@@ -1010,5 +1015,6 @@
   draw();
 })();
 </script>
+<script src="/challenge.js"></script>
 </body>
 </html>
