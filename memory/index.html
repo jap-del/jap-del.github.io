@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>숫자 기억력 테스트 - 몇 자리까지 기억할 수 있을까 | 게임 허브</title>
+<meta name="description" content="잠깐 보였다 사라지는 숫자를 기억해 입력하는 숫자 기억력 테스트. 순서대로·거꾸로 모드로 내가 기억하는 자릿수를 측정하세요. PC와 모바일 모두 지원합니다.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://jap-del.github.io/memory/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="게임 허브">
+<meta property="og:title" content="숫자 기억력 테스트 - 몇 자리까지 기억할 수 있을까 | 게임 허브">
+<meta property="og:description" content="잠깐 보였다 사라지는 숫자를 기억해 입력하는 숫자 기억력 테스트. 순서대로·거꾸로 모드로 내가 기억하는 자릿수를 측정하세요. PC와 모바일 모두 지원합니다.">
+<meta property="og:url" content="https://jap-del.github.io/memory/">
+<meta property="og:locale" content="ko_KR">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/pages.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "VideoGame", "name": "숫자 기억력 테스트", "url": "https://jap-del.github.io/memory/", "description": "잠깐 보였다 사라지는 숫자를 기억해 입력하는 숫자 기억력 테스트. 순서대로·거꾸로 모드로 내가 기억하는 자릿수를 측정하세요. PC와 모바일 모두 지원합니다.", "genre": ["퍼즐", "두뇌", "테스트"], "gamePlatform": ["Web browser", "PC", "Mobile"], "applicationCategory": "Game", "inLanguage": "ko", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}}</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="/">게임 허브</a>
+    <nav aria-label="사이트 메뉴">
+      <a href="/">홈</a>
+      <a href="/jumpit/">점프잇</a>
+      <a href="/lightsout/">라이트 아웃</a>
+      <a href="/aim/">에임 트레이너</a>
+      <a href="/snake/">터닝 스네이크</a>
+      <a href="/cps/">클릭 테스트</a>
+      <a href="/memory/" aria-current="page">기억력 테스트</a>
+      <a href="/blog/">블로그</a>
+      <a href="/about.html">소개</a>
+      <a href="/contact.html">문의</a>
+    </nav>
+  </header>
+<style>
+  .mm-wrap{max-width:560px;margin:0 auto;}
+  .modes{display:flex;gap:6px;justify-content:center;margin:0 0 10px;flex-wrap:wrap;}
+  .mode{border:1px solid rgba(255,255,255,.16);background:transparent;color:var(--sub);border-radius:999px;padding:6px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .mode[aria-pressed="true"]{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0f1020;border-color:transparent;}
+  .mode:disabled{opacity:.45;cursor:default;}
+  .mm-hud{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:700;margin-bottom:8px;font-variant-numeric:tabular-nums;}
+  .mm-hud .dim{color:var(--sub);font-weight:500;margin-right:4px;}
+  .lives{letter-spacing:3px;color:#ff6b81;}
+  .lives .off{color:rgba(255,255,255,.18);}
+  .mm-board{position:relative;min-height:230px;border-radius:16px;background:radial-gradient(circle at 50% 35%,#22244a,#13142b 75%);border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px 14px;user-select:none;-webkit-user-select:none;overflow:hidden;}
+  .mm-digits{font-size:clamp(28px,8vw,46px);font-weight:800;letter-spacing:.12em;color:var(--text);font-variant-numeric:tabular-nums;word-break:break-all;line-height:1.25;}
+  .mm-msg{font-size:14px;color:var(--sub);margin-top:8px;}
+  .mm-input{min-height:56px;min-width:60%;border-bottom:2px solid var(--accent2);font-size:clamp(26px,7vw,40px);font-weight:800;letter-spacing:.12em;color:var(--text);font-variant-numeric:tabular-nums;word-break:break-all;padding:2px 6px;}
+  .mm-input .cur{display:inline-block;width:2px;height:.9em;background:var(--accent2);vertical-align:-0.1em;animation:bl 1s steps(1) infinite;}
+  @keyframes bl{50%{opacity:0;}}
+  .mm-timer{position:absolute;left:0;bottom:0;height:5px;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0;}
+  .cmp{font-size:clamp(20px,5.5vw,30px);font-weight:800;letter-spacing:.1em;font-variant-numeric:tabular-nums;word-break:break-all;}
+  .cmp .ok{color:#51cf66;} .cmp .ng{color:#ff6b81;text-decoration:underline;}
+  .cmp-label{font-size:11px;color:var(--sub);margin-top:6px;}
+  .start-btn{margin-top:14px;border:none;border-radius:999px;padding:11px 26px;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0f1020;}
+  .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+  .key{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:var(--text);border-radius:12px;padding:12px 0;font-size:20px;font-weight:700;cursor:pointer;font-family:inherit;touch-action:manipulation;user-select:none;-webkit-user-select:none;}
+  .key:active{background:rgba(0,210,255,.18);}
+  .key.ok{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0f1020;border-color:transparent;font-size:16px;}
+  .key:disabled{opacity:.35;cursor:default;}
+  .best-line{font-size:13px;color:var(--sub);margin:8px 2px 0;}
+  .best-line strong{color:var(--text);}
+  #mmResult{margin-top:14px;}
+  #mmResult.hidden{display:none;}
+  .res-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .res-title .big{font-size:34px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 14px;}
+  @media (max-width:600px){.res-grid{grid-template-columns:repeat(2,1fr);}}
+  .stat{background:rgba(255,255,255,.04);border-radius:10px;padding:10px;text-align:center;}
+  .stat b{display:block;font-size:18px;color:var(--text);font-variant-numeric:tabular-nums;}
+  .stat span{font-size:11px;color:var(--sub);}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .btn{border:none;border-radius:999px;padding:10px 20px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0f1020;}
+  .btn.ghost{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.18);}
+  .history{list-style:none;padding:0;margin:8px 0 0;display:flex;gap:6px;flex-wrap:wrap;}
+  .history li{font-size:12px;background:rgba(255,255,255,.05);border-radius:999px;padding:4px 10px;color:var(--sub);margin:0;}
+  details{border-top:1px solid rgba(255,255,255,0.06);padding:10px 0;}
+  details:first-of-type{border-top:none;}
+  summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--text);}
+  details p{margin:8px 0 0;}
+</style>
+
+  <h1>숫자 기억력 테스트</h1>
+  <p class="lead">잠깐 나타났다 사라지는 숫자를 기억해서 그대로 입력하세요. 맞힐 때마다 한 자리씩 늘어납니다. 나는 몇 자리까지 기억할 수 있을까요?</p>
+
+  <div class="mm-wrap">
+    <div class="modes" role="group" aria-label="모드">
+      <button class="mode" data-mode="fwd" aria-pressed="true">순서대로</button>
+      <button class="mode" data-mode="bwd" aria-pressed="false">거꾸로</button>
+    </div>
+    <div class="mm-hud">
+      <span><span class="dim">단계</span><span id="mmLevel">3</span>자리</span>
+      <span class="lives" id="mmLives" aria-label="남은 기회">●●●</span>
+      <span><span class="dim">맞힌 수</span><span id="mmScore">0</span></span>
+    </div>
+    <div class="mm-board" id="mmBoard" aria-live="polite">
+      <div class="mm-digits" id="mmMain">숫자 기억력 테스트</div>
+      <div class="mm-msg" id="mmMsg">숫자가 잠깐 보였다가 사라집니다. 사라지면 기억한 숫자를 입력하세요.</div>
+      <button class="start-btn" id="mmStart">시작하기</button>
+      <div class="mm-timer" id="mmTimer"></div>
+    </div>
+    <div class="pad" id="mmPad" aria-label="숫자 키패드">
+      <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button>
+      <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button>
+      <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button>
+      <button class="key" data-k="del" aria-label="지우기">⌫</button><button class="key" data-k="0">0</button><button class="key ok" data-k="ok">확인</button>
+    </div>
+    <p class="best-line" id="mmBest">최고 기록(순서대로): <strong>-</strong></p>
+  </div>
+
+  <section id="mmResult" class="hidden" aria-live="polite">
+    <div class="res-title">
+      <h2 style="margin:0">테스트 종료</h2>
+      <span class="big" id="rSpan">0자리</span>
+    </div>
+    <p id="rMsg" style="margin:4px 0 0"></p>
+    <div class="res-grid">
+      <div class="stat"><b id="rMode">-</b><span>모드</span></div>
+      <div class="stat"><b id="rRight">-</b><span>맞힌 문제</span></div>
+      <div class="stat"><b id="rTry">-</b><span>전체 문제</span></div>
+      <div class="stat"><b id="rBest">-</b><span>이 모드 최고</span></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="mmAgain">다시 하기</button>
+      <button class="btn ghost" id="mmShare">결과 복사</button>
+    </div>
+    <ul class="history" id="mmHist"></ul>
+  </section>
+
+  <section style="margin-top:14px">
+    <h2>숫자 기억력 테스트란?</h2>
+    <p>심리학에서 <strong>숫자 폭(digit span)</strong>이라고 부르는 검사를 게임으로 만든 것입니다. 숫자를 잠깐 보여 준 뒤 그대로 따라 말하게 하는 방식으로, 머릿속에 정보를 잠시 붙잡아 두는 <strong>작업 기억</strong>을 재는 대표적인 방법입니다. 지능 검사의 한 항목으로도 쓰입니다.</p>
+    <p>순서대로 기억하는 것만으로도 쉽지 않지만, <strong>거꾸로 모드</strong>는 기억한 숫자를 머릿속에서 뒤집어야 해서 훨씬 어렵습니다. 같은 사람이라도 거꾸로 모드 기록이 보통 한두 자리 짧게 나옵니다.</p>
+  </section>
+
+  <section>
+    <h2>플레이 방법</h2>
+    <ol>
+      <li><strong>모드</strong>를 고르고 시작하기를 누릅니다.</li>
+      <li>숫자가 화면에 잠깐 나타납니다. 아래 막대가 끝까지 차면 숫자가 사라집니다. 자릿수가 늘수록 보여 주는 시간도 조금씩 길어집니다.</li>
+      <li>기억한 숫자를 입력하고 <strong>확인</strong>(또는 Enter)을 누릅니다. 거꾸로 모드에서는 본 숫자를 뒤에서부터 입력합니다.</li>
+      <li>맞히면 한 자리 늘어난 숫자가 나옵니다. 틀리면 기회가 하나 줄고 같은 자릿수의 새 숫자로 다시 도전합니다.</li>
+      <li>기회 3개를 모두 쓰면 끝나고, <strong>맞힌 가장 긴 자릿수</strong>가 내 기록이 됩니다.</li>
+    </ol>
+    <p>PC에서는 키보드 숫자 키로 입력하고 Backspace로 지울 수 있습니다. 스마트폰에서는 화면의 숫자 키패드를 쓰세요.</p>
+  </section>
+
+  <section>
+    <h2>기록으로 보는 기억력</h2>
+    <table>
+      <tr><th>순서대로 기록</th><th>평가</th></tr>
+      <tr><td>5자리 이하</td><td>집중이 흐트러졌을 수 있어요. 한 번 더 해 보세요.</td></tr>
+      <tr><td>6 ~ 7자리</td><td>많은 사람이 기록하는 평균적인 구간입니다.</td></tr>
+      <tr><td>8 ~ 9자리</td><td>평균보다 좋은 기록입니다. 숫자를 묶어 기억하는 요령이 생겼을 가능성이 큽니다.</td></tr>
+      <tr><td>10자리 이상</td><td>상당히 뛰어난 기록입니다. 기억 전략을 잘 쓰고 있다는 뜻입니다.</td></tr>
+    </table>
+    <p>흔히 사람이 한 번에 기억하는 숫자는 "7개 안팎"이라고 합니다. 다만 컨디션, 집중도, 기억 요령에 따라 기록은 쉽게 달라지므로 재미로 참고하세요. 의학적 검사를 대신하지 않습니다.</p>
+  </section>
+
+  <section>
+    <h2>기록 올리는 팁</h2>
+    <ul>
+      <li><strong>묶어서 기억하기</strong>: 82947153을 "829-471-53"처럼 세 자리씩 끊으면 기억할 덩어리가 8개에서 3개로 줄어듭니다.</li>
+      <li><strong>속으로 소리 내어 되뇌기</strong>: 숫자를 눈으로만 보지 말고 "팔이구, 사칠일, 오삼"처럼 속으로 읽으면 더 오래 남습니다.</li>
+      <li><strong>익숙한 숫자와 연결하기</strong>: 1945, 2002처럼 아는 연도나 생일, 전화번호 조각이 보이면 하나의 덩어리로 기억할 수 있습니다.</li>
+      <li><strong>바로 입력하기</strong>: 기억은 몇 초만 지나도 흐려집니다. 숫자가 사라지면 망설이지 말고 바로 입력하세요.</li>
+    </ul>
+    <p>왜 이런 방법이 통하는지는 <a href="/blog/digit-span-memory.html">마법의 수 7 글</a>과 <a href="/blog/memory-chunking-tips.html">숫자 기억력 높이는 법</a>에서 다룹니다.</p>
+  </section>
+
+  <section>
+    <h2>자주 묻는 질문</h2>
+    <details>
+      <summary>숫자가 너무 빨리 사라져요.</summary>
+      <p>보여 주는 시간은 기본 0.8초에 자릿수마다 0.4초씩 늘어납니다. 3자리는 2초, 7자리는 3.6초, 10자리는 4.8초 동안 보입니다. 다 읽으려 하기보다 덩어리로 끊어 보는 연습을 하면 금방 익숙해집니다.</p>
+    </details>
+    <details>
+      <summary>같은 숫자가 반복되거나 쉬운 숫자가 나오기도 하나요?</summary>
+      <p>숫자는 무작위로 뽑지만, 너무 쉬운 문제가 나오지 않도록 같은 숫자가 바로 이어서 나오지 않게 했습니다. 첫 자리에도 0은 나오지 않습니다.</p>
+    </details>
+    <details>
+      <summary>기록은 어디에 저장되나요?</summary>
+      <p>모드별 최고 기록과 최근 기록은 이용 중인 브라우저에만 저장되며 서버로 보내지 않습니다. 자세한 내용은 <a href="/privacy.html">개인정보처리방침</a>을 참고하세요.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>함께 즐기면 좋은 게임과 글</h2>
+    <ul>
+      <li><a href="/cps/">클릭 속도 테스트</a>: 머리를 썼다면 이번엔 손가락 차례입니다.</li>
+      <li><a href="/snake/">터닝 스네이크</a>: 방향을 머릿속으로 돌려야 하는 두뇌형 뱀 게임입니다.</li>
+      <li><a href="/blog/digit-span-memory.html">숫자 몇 개까지 기억할 수 있을까: 마법의 수 7과 작업 기억</a></li>
+      <li><a href="/blog/memory-chunking-tips.html">숫자 기억력 높이는 법: 묶어서, 소리 내어, 그림으로</a></li>
+      <li><a href="/blog/click-memory-devlog.html">클릭 속도·기억력 테스트 개발기</a></li>
+    </ul>
+  </section>
+
+<script>
+(function(){
+  "use strict";
+  var START = 3, LIVES = 3;
+  var main = document.getElementById('mmMain'), msg = document.getElementById('mmMsg'), startBtn = document.getElementById('mmStart'), timer = document.getElementById('mmTimer');
+  var elLevel = document.getElementById('mmLevel'), elLives = document.getElementById('mmLives'), elScore = document.getElementById('mmScore');
+  var elBest = document.getElementById('mmBest'), result = document.getElementById('mmResult');
+  var modeBtns = [].slice.call(document.querySelectorAll('.mode')), keys = [].slice.call(document.querySelectorAll('.key'));
+
+  function load(k, d){ try{ var v = localStorage.getItem(k); return v === null ? d : v; }catch(e){ return d; } }
+  function save(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
+
+  var mode = load('mem_mode', 'fwd') === 'bwd' ? 'bwd' : 'fwd';
+  var state = 'idle'; // idle | show | input | feedback | over
+  var level, lives, right, tries, bestSpan, target, typed, showTimer = 0, showRaf = 0;
+
+  function modeName(m){ return m === 'bwd' ? '거꾸로' : '순서대로'; }
+  function getBest(m){ var v = parseInt(load('mem_best_' + m, ''), 10); return isNaN(v) ? null : v; }
+  function renderBest(){ var b = getBest(mode); elBest.innerHTML = '최고 기록(' + modeName(mode) + '): <strong>' + (b === null ? '-' : b + '자리') + '</strong>'; }
+  function setMode(m){
+    mode = m; save('mem_mode', m);
+    modeBtns.forEach(function(b){ b.setAttribute('aria-pressed', String(b.getAttribute('data-mode') === m)); });
+    renderBest();
+  }
+  modeBtns.forEach(function(b){ b.addEventListener('click', function(){ if(state !== 'idle' && state !== 'over') return; setMode(b.getAttribute('data-mode')); }); });
+
+  function hud(){
+    elLevel.textContent = level; elScore.textContent = right;
+    var s = ''; for(var i = 0; i < LIVES; i++) s += i < lives ? '●' : '<span class="off">●</span>';
+    elLives.innerHTML = s;
+  }
+  function setKeys(on){ keys.forEach(function(k){ k.disabled = !on; }); }
+  function makeNumber(n){
+    var s = '', prev = -1;
+    for(var i = 0; i < n; i++){
+      var d;
+      do { d = Math.floor(Math.random() * 10); } while(d === prev || (i === 0 && d === 0));
+      s += d; prev = d;
+    }
+    return s;
+  }
+  function showMs(n){ return 800 + 400 * n; }
+
+  function start(){
+    level = START; lives = LIVES; right = 0; tries = 0; bestSpan = 0;
+    result.classList.add('hidden'); startBtn.style.display = 'none';
+    modeBtns.forEach(function(b){ b.disabled = true; });
+    hud(); round();
+  }
+  function round(){
+    state = 'show'; typed = ''; tries++;
+    target = makeNumber(level);
+    main.textContent = target; main.className = 'mm-digits';
+    msg.textContent = '기억하세요!' + (mode === 'bwd' ? ' (입력은 거꾸로)' : '');
+    setKeys(false); hud();
+    var dur = showMs(level), t0 = performance.now();
+    timer.style.width = '0';
+    (function anim(now){
+      if(state !== 'show') return;
+      var p = Math.min(1, (now - t0) / dur); timer.style.width = (p * 100) + '%';
+      if(p < 1) showRaf = requestAnimationFrame(anim);
+    })(t0);
+    showTimer = setTimeout(askInput, dur);
+  }
+  function askInput(){
+    state = 'input'; timer.style.width = '0';
+    msg.textContent = (mode === 'bwd' ? '본 숫자를 거꾸로 입력하세요' : '본 숫자를 그대로 입력하세요') + ' (' + level + '자리)';
+    setKeys(true); renderInput();
+  }
+  function renderInput(){
+    main.className = 'mm-input';
+    main.innerHTML = typed.replace(/</g, '') + '<span class="cur"></span>';
+  }
+  function press(k){
+    if(state !== 'input') return;
+    if(k === 'del'){ typed = typed.slice(0, -1); renderInput(); return; }
+    if(k === 'ok'){ if(typed.length) check(); return; }
+    if(typed.length >= level + 3) return;
+    typed += k; renderInput();
+  }
+  function check(){
+    state = 'feedback'; setKeys(false);
+    var answer = mode === 'bwd' ? target.split('').reverse().join('') : target;
+    if(typed === answer){
+      right++; bestSpan = Math.max(bestSpan, level);
+      main.className = 'mm-digits'; main.innerHTML = '<span style="color:#51cf66">정답!</span>';
+      msg.textContent = level + '자리 성공 → 다음은 ' + (level + 1) + '자리';
+      level++; hud();
+      setTimeout(round, 900);
+    } else {
+      lives--; hud();
+      var html = '';
+      for(var i = 0; i < Math.max(answer.length, typed.length); i++){
+        var a = answer[i], t = typed[i];
+        html += t === undefined ? '<span class="ng">_</span>' : (t === a ? '<span class="ok">' + t + '</span>' : '<span class="ng">' + t + '</span>');
+      }
+      main.className = '';
+      main.innerHTML = '<div class="cmp">' + answer + '</div><div class="cmp-label">정답' + (mode === 'bwd' ? '(거꾸로)' : '') + '</div><div class="cmp" style="margin-top:6px">' + html + '</div><div class="cmp-label">내 입력</div>';
+      msg.textContent = lives > 0 ? '아쉬워요! 남은 기회 ' + lives + '번 · 같은 자릿수로 다시 도전합니다' : '기회를 모두 썼어요';
+      setTimeout(lives > 0 ? round : finish, lives > 0 ? 2200 : 1800);
+    }
+  }
+  function finish(){
+    state = 'over'; setKeys(false);
+    modeBtns.forEach(function(b){ b.disabled = false; });
+    var best = getBest(mode), isNew = bestSpan > 0 && (best === null || bestSpan > best);
+    if(isNew){ save('mem_best_' + mode, String(bestSpan)); best = bestSpan; }
+    main.className = 'mm-digits'; main.textContent = bestSpan + '자리';
+    msg.textContent = '내 기록 · 다시 하려면 아래 버튼을 누르세요';
+    startBtn.textContent = '다시 시작'; startBtn.style.display = '';
+    var comment;
+    if(bestSpan >= 10) comment = '상당히 뛰어난 기록이에요!';
+    else if(bestSpan >= 8) comment = '평균보다 좋은 기록이에요.';
+    else if(bestSpan >= 6) comment = '많은 사람이 기록하는 평균적인 구간이에요.';
+    else comment = '집중해서 한 번 더 도전해 보세요.';
+    document.getElementById('rSpan').textContent = bestSpan + '자리';
+    document.getElementById('rMsg').innerHTML = comment + (isNew ? ' <strong>🎉 새 최고 기록!</strong>' : '');
+    document.getElementById('rMode').textContent = modeName(mode);
+    document.getElementById('rRight').textContent = right + '개';
+    document.getElementById('rTry').textContent = tries + '개';
+    document.getElementById('rBest').textContent = best === null ? '-' : best + '자리';
+    var hist = []; try{ hist = JSON.parse(load('mem_hist', '[]')) || []; }catch(e){ hist = []; }
+    hist.unshift({ s: bestSpan, m: mode }); hist = hist.slice(0, 6); save('mem_hist', JSON.stringify(hist));
+    document.getElementById('mmHist').innerHTML = hist.map(function(h){ return '<li>' + modeName(h.m) + ' · ' + h.s + '자리</li>'; }).join('');
+    result.classList.remove('hidden'); renderBest();
+  }
+
+  startBtn.addEventListener('click', start);
+  keys.forEach(function(k){
+    k.addEventListener('pointerdown', function(e){ e.preventDefault(); press(k.getAttribute('data-k')); });
+    k.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); e.stopPropagation(); press(k.getAttribute('data-k')); } });
+  });
+  window.addEventListener('keydown', function(e){
+    if(e.target && /input|textarea/i.test(e.target.tagName)) return;
+    if(/^[0-9]$/.test(e.key)){ if(state === 'input'){ e.preventDefault(); press(e.key); } }
+    else if(e.key === 'Backspace'){ if(state === 'input'){ e.preventDefault(); press('del'); } }
+    else if(e.key === 'Enter'){
+      if(state === 'input'){ e.preventDefault(); press('ok'); }
+      else if((state === 'idle' || state === 'over') && document.activeElement === document.body){ e.preventDefault(); start(); }
+    }
+  });
+  document.getElementById('mmAgain').addEventListener('click', function(){ document.getElementById('mmBoard').scrollIntoView({ behavior:'smooth', block:'center' }); start(); });
+  document.getElementById('mmShare').addEventListener('click', function(){
+    var btn = this, text = '숫자 기억력 테스트(' + modeName(mode) + ') ' + bestSpan + '자리 기억 성공! — 게임 허브 https://jap-del.github.io/memory/';
+    if(navigator.clipboard){ navigator.clipboard.writeText(text).then(function(){ btn.textContent = '복사됨!'; setTimeout(function(){ btn.textContent = '결과 복사'; }, 1400); }).catch(function(){}); }
+  });
+  document.addEventListener('visibilitychange', function(){
+    // 숫자를 보여 주는 중에 다른 화면으로 가면 같은 자릿수로 다시 보여 줍니다
+    if(document.hidden && state === 'show'){ clearTimeout(showTimer); cancelAnimationFrame(showRaf); tries--; state = 'paused'; }
+    else if(!document.hidden && state === 'paused'){ round(); }
+  });
+
+  window.__memState = function(){ return { state: state, level: level, lives: lives, target: target, mode: mode, best: bestSpan }; };
+  setMode(mode); setKeys(false);
+})();
+</script>
+
+  <footer>
+    <a href="/jumpit/">점프잇</a> &nbsp;|&nbsp; <a href="/lightsout/">라이트 아웃</a> &nbsp;|&nbsp; <a href="/aim/">에임 트레이너</a> &nbsp;|&nbsp; <a href="/snake/">터닝 스네이크</a> &nbsp;|&nbsp; <a href="/cps/">클릭 속도 테스트</a> &nbsp;|&nbsp; <a href="/memory/">숫자 기억력 테스트</a> &nbsp;|&nbsp; <a href="/blog/">블로그</a> &nbsp;|&nbsp; <a href="/about.html">소개</a> &nbsp;|&nbsp; <a href="/contact.html">문의</a> &nbsp;|&nbsp; <a href="/terms.html">이용약관</a> &nbsp;|&nbsp; <a href="/privacy.html">개인정보처리방침</a><br>
+    게임 허브 &copy; 2026 &nbsp;·&nbsp; 문의 <a href="mailto:jap__26@naver.com">jap__26@naver.com</a>
+  </footer>
+</div>
+</body>
+</html>
