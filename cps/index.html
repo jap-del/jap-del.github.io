@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>클릭 속도 테스트 - CPS 측정 (1초·5초·10초) | 게임 허브</title>
+<meta name="description" content="1초에 몇 번 클릭할 수 있을까? 1초·5초·10초·30초 모드로 클릭 속도(CPS)를 측정하고 구간별 속도 그래프와 등급을 확인하세요. PC와 모바일 모두 지원합니다.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://jap-del.github.io/cps/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="게임 허브">
+<meta property="og:title" content="클릭 속도 테스트 - CPS 측정 (1초·5초·10초) | 게임 허브">
+<meta property="og:description" content="1초에 몇 번 클릭할 수 있을까? 1초·5초·10초·30초 모드로 클릭 속도(CPS)를 측정하고 구간별 속도 그래프와 등급을 확인하세요. PC와 모바일 모두 지원합니다.">
+<meta property="og:url" content="https://jap-del.github.io/cps/">
+<meta property="og:locale" content="ko_KR">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/pages.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "VideoGame", "name": "클릭 속도 테스트", "url": "https://jap-del.github.io/cps/", "description": "1초에 몇 번 클릭할 수 있을까? 1초·5초·10초·30초 모드로 클릭 속도(CPS)를 측정하고 구간별 속도 그래프와 등급을 확인하세요. PC와 모바일 모두 지원합니다.", "genre": ["캐주얼", "테스트"], "gamePlatform": ["Web browser", "PC", "Mobile"], "applicationCategory": "Game", "inLanguage": "ko", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}}</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="/">게임 허브</a>
+    <nav aria-label="사이트 메뉴">
+      <a href="/">홈</a>
+      <a href="/jumpit/">점프잇</a>
+      <a href="/lightsout/">라이트 아웃</a>
+      <a href="/aim/">에임 트레이너</a>
+      <a href="/snake/">터닝 스네이크</a>
+      <a href="/cps/" aria-current="page">클릭 테스트</a>
+      <a href="/memory/">기억력 테스트</a>
+      <a href="/blog/">블로그</a>
+      <a href="/about.html">소개</a>
+      <a href="/contact.html">문의</a>
+    </nav>
+  </header>
+<style>
+  .cp-wrap{max-width:560px;margin:0 auto;}
+  .modes{display:flex;gap:6px;justify-content:center;margin:0 0 10px;flex-wrap:wrap;}
+  .mode{border:1px solid rgba(255,255,255,.16);background:transparent;color:var(--sub);border-radius:999px;padding:6px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .mode[aria-pressed="true"]{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0f1020;border-color:transparent;}
+  .mode:disabled{opacity:.45;cursor:default;}
+  .cp-hud{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;}
+  .cp-hud div{background:rgba(255,255,255,.04);border-radius:10px;padding:8px;text-align:center;}
+  .cp-hud b{display:block;font-size:22px;font-variant-numeric:tabular-nums;color:var(--text);line-height:1.3;}
+  .cp-hud span{font-size:11px;color:var(--sub);}
+  .cp-area{position:relative;height:300px;border-radius:16px;overflow:hidden;background:radial-gradient(circle at 50% 40%,#22244a,#13142b 75%);border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;outline:none;}
+  .cp-area:focus-visible{border-color:var(--accent2);}
+  .cp-area.run{background:radial-gradient(circle at 50% 40%,#2a2460,#16173a 75%);}
+  .cp-area.lock{cursor:default;}
+  .cp-big{font-size:26px;font-weight:800;color:var(--text);pointer-events:none;}
+  .cp-small{font-size:13px;color:var(--sub);margin-top:6px;pointer-events:none;}
+  .cp-bar{position:absolute;left:0;bottom:0;height:5px;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));pointer-events:none;}
+  .ripple{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;border:2px solid rgba(0,210,255,.8);pointer-events:none;animation:rp .45s ease-out forwards;}
+  @keyframes rp{to{transform:scale(4);opacity:0;}}
+  .best-line{font-size:13px;color:var(--sub);margin:8px 2px 0;}
+  .best-line strong{color:var(--text);}
+  #cpResult{margin-top:14px;}
+  #cpResult.hidden{display:none;}
+  .res-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .res-title .big{font-size:34px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 14px;}
+  @media (max-width:600px){.res-grid{grid-template-columns:repeat(2,1fr);}}
+  .stat{background:rgba(255,255,255,.04);border-radius:10px;padding:10px;text-align:center;}
+  .stat b{display:block;font-size:18px;color:var(--text);font-variant-numeric:tabular-nums;}
+  .stat span{font-size:11px;color:var(--sub);}
+  .chart{display:flex;align-items:flex-end;gap:4px;height:110px;padding:6px 4px 0;border-bottom:1px solid rgba(255,255,255,.12);}
+  .chart div{flex:1;background:linear-gradient(180deg,var(--accent2),var(--accent));border-radius:4px 4px 0 0;min-height:2px;position:relative;}
+  .chart div span{position:absolute;top:-17px;left:0;right:0;text-align:center;font-size:10px;color:var(--sub);}
+  .chart-x{display:flex;gap:4px;padding:2px 4px 0;}
+  .chart-x span{flex:1;text-align:center;font-size:10px;color:var(--sub);}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .btn{border:none;border-radius:999px;padding:10px 20px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0f1020;}
+  .btn.ghost{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.18);}
+  .history{list-style:none;padding:0;margin:8px 0 0;display:flex;gap:6px;flex-wrap:wrap;}
+  .history li{font-size:12px;background:rgba(255,255,255,.05);border-radius:999px;padding:4px 10px;color:var(--sub);margin:0;}
+  details{border-top:1px solid rgba(255,255,255,0.06);padding:10px 0;}
+  details:first-of-type{border-top:none;}
+  summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--text);}
+  details p{margin:8px 0 0;}
+</style>
+
+  <h1>클릭 속도 테스트</h1>
+  <p class="lead">정해진 시간 동안 최대한 빠르게 클릭해 보세요. 1초에 몇 번 클릭하는지(CPS)를 재고, 초마다 속도가 어떻게 변했는지 그래프로 보여 줍니다.</p>
+
+  <div class="cp-wrap">
+    <div class="modes" role="group" aria-label="측정 시간">
+      <button class="mode" data-sec="1" aria-pressed="false">1초</button>
+      <button class="mode" data-sec="5" aria-pressed="true">5초</button>
+      <button class="mode" data-sec="10" aria-pressed="false">10초</button>
+      <button class="mode" data-sec="30" aria-pressed="false">30초</button>
+    </div>
+    <div class="cp-hud">
+      <div><b id="cpTime">5.00</b><span>남은 시간(초)</span></div>
+      <div><b id="cpClicks">0</b><span>클릭 수</span></div>
+      <div><b id="cpCps">0.0</b><span>현재 CPS</span></div>
+    </div>
+    <div class="cp-area" id="cpArea" tabindex="0" role="button" aria-label="클릭 영역">
+      <div class="cp-big" id="cpBig">여기를 클릭하면 시작!</div>
+      <div class="cp-small" id="cpSmall">첫 클릭부터 시간이 흐릅니다</div>
+      <div class="cp-bar" id="cpBar"></div>
+    </div>
+    <p class="best-line" id="cpBest">최고 기록(5초): <strong>-</strong></p>
+  </div>
+
+  <section id="cpResult" class="hidden" aria-live="polite">
+    <div class="res-title">
+      <h2 style="margin:0" id="rGrade">결과</h2>
+      <span class="big" id="rCps">0 CPS</span>
+    </div>
+    <p id="rMsg" style="margin:4px 0 0"></p>
+    <div class="res-grid">
+      <div class="stat"><b id="rClicks">-</b><span>총 클릭</span></div>
+      <div class="stat"><b id="rPeak">-</b><span>가장 빨랐던 구간</span></div>
+      <div class="stat"><b id="rDrop">-</b><span>후반 속도 변화</span></div>
+      <div class="stat"><b id="rBest">-</b><span>이 모드 최고</span></div>
+    </div>
+    <div class="chart" id="rChart" aria-hidden="true"></div>
+    <div class="chart-x" id="rChartX" aria-hidden="true"></div>
+    <p style="font-size:12px;color:var(--sub);margin:6px 0 0">막대는 구간별 클릭 속도(CPS)입니다.</p>
+    <div class="btn-row">
+      <button class="btn" id="cpAgain">다시 하기</button>
+      <button class="btn ghost" id="cpShare">결과 복사</button>
+    </div>
+    <ul class="history" id="cpHist"></ul>
+  </section>
+
+  <section style="margin-top:14px">
+    <h2>클릭 속도 테스트란?</h2>
+    <p><strong>CPS(Clicks Per Second)</strong>는 1초 동안 마우스를 몇 번 클릭했는지를 나타내는 값입니다. 총 클릭 수를 측정 시간으로 나눠 계산합니다. 예를 들어 5초 동안 35번 클릭했다면 7 CPS입니다.</p>
+    <p>마인크래프트 같은 PvP 게임, 리듬 게임, 클리커 게임에서는 클릭 속도가 실력에 직접 영향을 줍니다. 게임 허브의 클릭 속도 테스트는 결과를 숫자 하나로 끝내지 않고, <strong>구간별 속도 그래프</strong>로 처음과 끝의 속도 차이까지 보여 줍니다. 대부분은 시작할 때 가장 빠르고, 뒤로 갈수록 손이 지쳐 느려집니다.</p>
+  </section>
+
+  <section>
+    <h2>측정 방법</h2>
+    <ol>
+      <li>위에서 <strong>측정 시간</strong>을 고릅니다. 1초는 순간 속도, 5초는 표준, 10초와 30초는 지구력을 봅니다.</li>
+      <li>클릭 영역을 <strong>처음 클릭하는 순간</strong>부터 시간이 흐르기 시작합니다.</li>
+      <li>시간이 끝날 때까지 최대한 빠르게 클릭합니다. 스마트폰에서는 손가락으로 탭하면 됩니다.</li>
+      <li>끝나면 CPS, 총 클릭 수, 구간별 그래프, 모드별 최고 기록을 보여 줍니다.</li>
+    </ol>
+    <p>시간이 끝난 직후의 클릭으로 바로 다음 판이 시작되지 않도록 잠깐(약 1초) 입력을 막아 둡니다.</p>
+  </section>
+
+  <section>
+    <h2>CPS 등급표</h2>
+    <table>
+      <tr><th>CPS</th><th>등급</th><th>설명</th></tr>
+      <tr><td>4 미만</td><td>🐢 느긋한 거북이</td><td>천천히 정확하게 누르는 편입니다.</td></tr>
+      <tr><td>4 ~ 6</td><td>🚶 보통 손가락</td><td>평소 클릭 속도에 가깝습니다.</td></tr>
+      <tr><td>6 ~ 8</td><td>🐇 빠른 토끼</td><td>집중해서 누르면 많은 사람이 도달하는 구간입니다.</td></tr>
+      <tr><td>8 ~ 10</td><td>🐆 치타 손가락</td><td>꽤 빠릅니다. 게임에서도 충분히 강점이 됩니다.</td></tr>
+      <tr><td>10 ~ 13</td><td>⚡ 번개 클릭</td><td>보통 지터 클릭 같은 특별한 방법을 써야 나오는 속도입니다.</td></tr>
+      <tr><td>13 이상</td><td>🚀 로켓</td><td>두 손가락을 번갈아 쓰는 버터플라이 클릭 수준입니다.</td></tr>
+    </table>
+    <p>등급은 재미로 나눈 기준입니다. 마우스 종류, 손의 컨디션, 측정 시간에 따라 기록이 꽤 달라지므로 같은 모드끼리 비교해 보세요.</p>
+  </section>
+
+  <section>
+    <h2>기록 올리는 팁</h2>
+    <ul>
+      <li><strong>손목 대신 손가락 끝으로</strong>: 손가락 끝만 짧게 움직이면 한 번 누르는 거리가 줄어 더 빨라집니다.</li>
+      <li><strong>힘을 빼고 리듬 타기</strong>: 세게 누를수록 손이 빨리 지칩니다. 일정한 박자를 유지하는 것이 10초·30초 모드의 핵심입니다.</li>
+      <li><strong>모바일은 두 손가락</strong>: 양손 엄지나 검지·중지를 번갈아 탭하면 한 손가락보다 훨씬 빠릅니다.</li>
+      <li><strong>무리하지 않기</strong>: 팔에 힘을 줘 떨듯이 누르는 지터 클릭은 손목과 팔에 부담이 큽니다. 통증이 느껴지면 바로 쉬세요.</li>
+    </ul>
+    <p>클릭 방법별 차이와 평균적인 기록은 <a href="/blog/cps-click-speed-guide.html">클릭 속도 정리 글</a>에서 자세히 다룹니다.</p>
+  </section>
+
+  <section>
+    <h2>자주 묻는 질문</h2>
+    <details>
+      <summary>키보드로 누르면 기록되나요?</summary>
+      <p>아니요. 이 테스트는 마우스 클릭과 화면 터치만 셉니다. 키보드는 꾹 누르고 있으면 자동으로 반복 입력되기 때문에 공정한 비교가 어렵습니다.</p>
+    </details>
+    <details>
+      <summary>스마트폰에서 두 손가락으로 동시에 탭해도 되나요?</summary>
+      <p>네. 각 손가락의 터치가 따로 한 번씩 셉니다. 다만 PC 마우스 기록과는 방식이 달라서, 비교할 때는 같은 기기끼리 보는 것이 좋습니다.</p>
+    </details>
+    <details>
+      <summary>마우스에 따라 기록이 달라지나요?</summary>
+      <p>달라질 수 있습니다. 버튼을 누르는 깊이와 반발력이 마우스마다 다르고, 오래 쓴 마우스는 한 번 눌렀는데 두 번 클릭되는 고장(더블 클릭 현상)이 생기기도 합니다. 기록이 갑자기 비정상적으로 높다면 마우스 상태를 확인해 보세요.</p>
+    </details>
+    <details>
+      <summary>기록은 어디에 저장되나요?</summary>
+      <p>모드별 최고 기록과 최근 기록은 이용 중인 브라우저에만 저장되며 서버로 보내지 않습니다. 자세한 내용은 <a href="/privacy.html">개인정보처리방침</a>을 참고하세요.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>함께 즐기면 좋은 게임과 글</h2>
+    <ul>
+      <li><a href="/memory/">숫자 기억력 테스트</a>: 손 대신 머리를 써 볼 차례입니다.</li>
+      <li><a href="/lightsout/">라이트 아웃</a>: 클릭의 빠르기가 아니라 반응의 빠르기를 잽니다.</li>
+      <li><a href="/blog/cps-click-speed-guide.html">클릭 속도(CPS) 평균과 기록 올리는 클릭 방법</a></li>
+      <li><a href="/blog/click-memory-devlog.html">클릭 속도·기억력 테스트 개발기</a></li>
+      <li><a href="/blog/fitts-law.html">피츠의 법칙: 작고 먼 버튼은 왜 누르기 어려울까</a></li>
+    </ul>
+  </section>
+
+<script>
+(function(){
+  "use strict";
+  var area = document.getElementById('cpArea'), big = document.getElementById('cpBig'), small = document.getElementById('cpSmall'), bar = document.getElementById('cpBar');
+  var elTime = document.getElementById('cpTime'), elClicks = document.getElementById('cpClicks'), elCps = document.getElementById('cpCps');
+  var elBest = document.getElementById('cpBest'), result = document.getElementById('cpResult');
+  var modeBtns = [].slice.call(document.querySelectorAll('.mode'));
+
+  function load(k, d){ try{ var v = localStorage.getItem(k); return v === null ? d : v; }catch(e){ return d; } }
+  function save(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
+
+  var sec = parseInt(load('cps_mode', '5'), 10); if([1,5,10,30].indexOf(sec) < 0) sec = 5;
+  var state = 'idle'; // idle | run | lock
+  var t0 = 0, times = [], lastCps = 0, raf = 0;
+
+  function getBest(s){ var v = parseFloat(load('cps_best_' + s, '')); return isNaN(v) ? null : v; }
+  function renderBest(){ var b = getBest(sec); elBest.innerHTML = '최고 기록(' + sec + '초): <strong>' + (b === null ? '-' : b.toFixed(2) + ' CPS') + '</strong>'; }
+  function setMode(s){
+    sec = s; save('cps_mode', String(s));
+    modeBtns.forEach(function(b){ b.setAttribute('aria-pressed', String(parseInt(b.getAttribute('data-sec'), 10) === s)); });
+    elTime.textContent = s.toFixed(2); renderBest();
+  }
+  modeBtns.forEach(function(b){ b.addEventListener('click', function(){ if(state === 'run') return; setMode(parseInt(b.getAttribute('data-sec'), 10)); idleView(); }); });
+
+  function idleView(){
+    state = 'idle'; area.className = 'cp-area';
+    big.textContent = '여기를 클릭하면 시작!'; small.textContent = '첫 클릭부터 ' + sec + '초가 흐릅니다';
+    elTime.textContent = sec.toFixed(2); elClicks.textContent = '0'; elCps.textContent = '0.0'; bar.style.width = '0';
+    modeBtns.forEach(function(b){ b.disabled = false; });
+  }
+
+  function grade(c){
+    if(c < 4) return '🐢 느긋한 거북이'; if(c < 6) return '🚶 보통 손가락'; if(c < 8) return '🐇 빠른 토끼';
+    if(c < 10) return '🐆 치타 손가락'; if(c < 13) return '⚡ 번개 클릭'; if(c < 30) return '🚀 로켓'; return '🤖 혹시 자동 클릭?';
+  }
+
+  function ripple(e){
+    var r = area.getBoundingClientRect(), d = document.createElement('i');
+    d.className = 'ripple'; d.style.left = (e.clientX - r.left) + 'px'; d.style.top = (e.clientY - r.top) + 'px';
+    area.appendChild(d); setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); }, 460);
+  }
+
+  function hit(e){
+    var now = performance.now();
+    if(state === 'lock') return;
+    if(state === 'idle'){
+      state = 'run'; t0 = now; times = []; result.classList.add('hidden');
+      area.className = 'cp-area run'; big.textContent = '클릭! 클릭! 클릭!'; small.textContent = '';
+      modeBtns.forEach(function(b){ b.disabled = true; });
+      raf = requestAnimationFrame(tick);
+    }
+    if(now - t0 > sec * 1000) return;
+    times.push(now - t0);
+    elClicks.textContent = times.length;
+    if(e && e.clientX !== undefined && times.length % 2 === 1) ripple(e);
+  }
+
+  function tick(now){
+    if(state !== 'run') return;
+    var el = now - t0, left = Math.max(0, sec * 1000 - el);
+    elTime.textContent = (left / 1000).toFixed(2);
+    bar.style.width = Math.min(100, el / (sec * 10)) + '%';
+    // 최근 1초(시작 직후에는 경과 시간) 기준 현재 속도
+    var win = Math.min(1000, Math.max(el, 200)), n = 0;
+    for(var i = times.length - 1; i >= 0 && times[i] > el - win; i--) n++;
+    elCps.textContent = (n / (win / 1000)).toFixed(1);
+    if(left <= 0){ finish(); return; }
+    raf = requestAnimationFrame(tick);
+  }
+
+  function finish(){
+    state = 'lock'; area.className = 'cp-area lock';
+    var n = times.length, cps = n / sec;
+    lastCps = cps;
+    elTime.textContent = '0.00'; bar.style.width = '100%'; elCps.textContent = cps.toFixed(1);
+    big.textContent = cps.toFixed(2) + ' CPS'; small.textContent = '잠시 후 다시 시작할 수 있어요';
+
+    // 구간 나누기: 1초 모드는 0.2초씩 5칸, 30초 모드는 3초씩 10칸, 나머지는 1초씩
+    var bins = sec === 1 ? 5 : (sec === 30 ? 10 : sec), w = sec * 1000 / bins, cnt = [];
+    for(var i = 0; i < bins; i++) cnt.push(0);
+    times.forEach(function(t){ cnt[Math.min(bins - 1, Math.floor(t / w))]++; });
+    var rate = cnt.map(function(c){ return c / (w / 1000); });
+    var peak = Math.max.apply(null, rate), maxH = Math.max(peak, 1);
+    var ch = document.getElementById('rChart'), cx = document.getElementById('rChartX');
+    ch.innerHTML = rate.map(function(r){ return '<div style="height:' + (r / maxH * 100).toFixed(1) + '%"><span>' + (Math.round(r * 10) / 10) + '</span></div>'; }).join('');
+    cx.innerHTML = rate.map(function(r, i){ var a = (i + 1) * w / 1000; return '<span>' + (Math.round(a * 10) / 10) + 's</span>'; }).join('');
+
+    var half = Math.floor(bins / 2), first = 0, last = 0;
+    for(var j = 0; j < bins; j++){ if(j < half) first += cnt[j]; else if(j >= bins - half) last += cnt[j]; }
+    var drop = first > 0 && half > 0 ? Math.round((last - first) / first * 100) : 0;
+
+    var best = getBest(sec), isNew = n > 0 && (best === null || cps > best + 1e-9);
+    if(isNew){ save('cps_best_' + sec, cps.toFixed(2)); best = parseFloat(cps.toFixed(2)); }
+    document.getElementById('rGrade').textContent = grade(cps);
+    document.getElementById('rCps').textContent = cps.toFixed(2) + ' CPS';
+    document.getElementById('rMsg').innerHTML = sec + '초 동안 ' + n + '번 클릭했어요.' + (isNew ? ' <strong>🎉 새 최고 기록!</strong>' : '');
+    document.getElementById('rClicks').textContent = n + '번';
+    document.getElementById('rPeak').textContent = peak.toFixed(1) + ' CPS';
+    document.getElementById('rDrop').textContent = (half > 0 && first > 0) ? ((drop > 0 ? '+' : '') + drop + '%') : '-';
+    document.getElementById('rBest').textContent = best === null ? '-' : best.toFixed(2);
+
+    var hist = []; try{ hist = JSON.parse(load('cps_hist', '[]')) || []; }catch(e){ hist = []; }
+    hist.unshift({ c: Math.round(cps * 100) / 100, s: sec }); hist = hist.slice(0, 6); save('cps_hist', JSON.stringify(hist));
+    document.getElementById('cpHist').innerHTML = hist.map(function(h){ return '<li>' + h.s + '초 · ' + Number(h.c).toFixed(2) + ' CPS</li>'; }).join('');
+    result.classList.remove('hidden'); renderBest();
+    setTimeout(function(){ if(state === 'lock'){ idleView(); big.textContent = cps.toFixed(2) + ' CPS'; small.textContent = '다시 클릭하면 새로 시작합니다'; } }, 1000);
+  }
+
+  area.addEventListener('pointerdown', function(e){
+    if(e.pointerType === 'mouse' && e.button !== 0) return;
+    e.preventDefault(); hit(e);
+  });
+  area.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+  document.getElementById('cpAgain').addEventListener('click', function(){ if(state !== 'run'){ idleView(); area.scrollIntoView({ behavior:'smooth', block:'center' }); } });
+  document.getElementById('cpShare').addEventListener('click', function(){
+    var btn = this, text = '클릭 속도 테스트 ' + sec + '초 모드 ' + lastCps.toFixed(2) + ' CPS! — 게임 허브 https://jap-del.github.io/cps/';
+    if(navigator.clipboard){ navigator.clipboard.writeText(text).then(function(){ btn.textContent = '복사됨!'; setTimeout(function(){ btn.textContent = '결과 복사'; }, 1400); }).catch(function(){}); }
+  });
+  document.addEventListener('visibilitychange', function(){ if(document.hidden && state === 'run'){ cancelAnimationFrame(raf); idleView(); small.textContent = '다른 화면으로 이동해 측정을 취소했어요'; } });
+
+  window.__cpsState = function(){ return { state: state, sec: sec, clicks: times.length, cps: lastCps }; };
+  setMode(sec); idleView();
+})();
+</script>
+
+  <footer>
+    <a href="/jumpit/">점프잇</a> &nbsp;|&nbsp; <a href="/lightsout/">라이트 아웃</a> &nbsp;|&nbsp; <a href="/aim/">에임 트레이너</a> &nbsp;|&nbsp; <a href="/snake/">터닝 스네이크</a> &nbsp;|&nbsp; <a href="/cps/">클릭 속도 테스트</a> &nbsp;|&nbsp; <a href="/memory/">숫자 기억력 테스트</a> &nbsp;|&nbsp; <a href="/blog/">블로그</a> &nbsp;|&nbsp; <a href="/about.html">소개</a> &nbsp;|&nbsp; <a href="/contact.html">문의</a> &nbsp;|&nbsp; <a href="/terms.html">이용약관</a> &nbsp;|&nbsp; <a href="/privacy.html">개인정보처리방침</a><br>
+    게임 허브 &copy; 2026 &nbsp;·&nbsp; 문의 <a href="mailto:jap__26@naver.com">jap__26@naver.com</a>
+  </footer>
+</div>
+</body>
+</html>
