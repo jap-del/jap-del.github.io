@@ -12,6 +12,10 @@
 <meta property="og:title" content="에임 트레이너 - 무료 조준 연습 게임 | 게임 허브">
 <meta property="og:description" content="과녁 30개를 빠르고 정확하게 맞히는 무료 에임 연습 게임. 정확도, 과녁당 평균 시간, 오버슈팅·언더슈팅 분석까지 보여 줍니다.">
 <meta property="og:url" content="https://jap-del.github.io/aim/">
+<meta property="og:image" content="https://jap-del.github.io/og/aim.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <meta property="og:locale" content="ko_KR">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236c5ce7'/%3E%3Crect x='30' y='30' width='40' height='40' rx='8' fill='white'/%3E%3C/svg%3E">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914149942050509" crossorigin="anonymous"></script>
@@ -119,7 +123,7 @@
     </div>
     <div class="btn-row">
       <button class="btn" id="againBtn">다시 하기</button>
-      <button class="btn ghost" id="shareBtn">결과 복사</button>
+      <button class="btn ghost" id="shareBtn">도전장 보내기</button>
     </div>
     <ul class="history" id="history"></ul>
   </section>
@@ -382,6 +386,7 @@
     var best = getBest(), isNew = best === null || endTime < best;
     if(isNew){ save(bestKey(), endTime.toFixed(2)); best = parseFloat(endTime.toFixed(2)); }
     var acc = clicks ? hits / clicks * 100 : 0;
+    if(window.GH) GH.result(endTime.toFixed(2), mode);
 
     document.getElementById('resTime').textContent = endTime.toFixed(2) + '초';
     document.getElementById('resGrade').innerHTML = '<strong>' + grade(endTime) + '</strong>' + (isNew ? ' · 🎉 이 기기 신기록!' : '') + '<br><span style="color:var(--sub);font-size:13px">' + (mode === 'precise' ? '정밀' : '일반') + ' 모드 · ' + deviceLabel + ' · 순수 시간 ' + raw.toFixed(2) + '초 + 벌점 ' + (misses * PENALTY).toFixed(1) + '초</span>';
@@ -445,6 +450,7 @@
   });
   document.getElementById('shareBtn').addEventListener('click', function(){
     var acc = clicks ? Math.round(hits / clicks * 100) : 0;
+    if(window.GH){ GH.share(this, endTime.toFixed(2), mode, '에임 트레이너(' + (mode === 'precise' ? '정밀' : '일반') + ') 과녁 30개 ' + endTime.toFixed(2) + '초, 정확도 ' + acc + '%! 이 기록 이길 수 있어? 🎯'); return; }
     var text = '에임 트레이너(' + (mode === 'precise' ? '정밀' : '일반') + ') 과녁 30개 ' + endTime.toFixed(2) + '초 · 정확도 ' + acc + '% — 게임 허브 https://jap-del.github.io/aim/';
     var btn = this;
     if(navigator.clipboard){
@@ -503,5 +509,6 @@
     게임 허브 &copy; 2026 &nbsp;·&nbsp; 문의 <a href="mailto:jap__26@naver.com">jap__26@naver.com</a>
   </footer>
 </div>
+<script src="/challenge.js"></script>
 </body>
 </html>
