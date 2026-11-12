@@ -67,3 +67,12 @@ p code,li code,td code{background:rgba(255,255,255,0.07);padding:1px 5px;border-
 .thumb.snake i{position:absolute;width:20px;height:20px;border-radius:6px;background:rgba(108,92,231,.8);}
 .thumb.snake i.hd{background:#00d2ff;}
 .thumb.snake b{position:absolute;width:16px;height:16px;border-radius:50%;background:#ffd43b;box-shadow:0 0 0 4px rgba(255,212,59,.25);}
+.thumb.cps{background:radial-gradient(circle at 50% 50%,#2a2460,#13142b 72%);display:flex;align-items:center;justify-content:center;}
+.thumb.cps i{position:absolute;left:50%;top:50%;border-radius:50%;border:2px solid rgba(0,210,255,.7);transform:translate(-50%,-50%);}
+.thumb.cps .r1{width:40px;height:40px;}
+.thumb.cps .r2{width:76px;height:76px;opacity:.5;}
+.thumb.cps .r3{width:112px;height:112px;opacity:.22;}
+.thumb.cps b{position:relative;font-size:22px;font-weight:800;color:#f2f2f7;letter-spacing:.02em;}
+.thumb.mem{background:radial-gradient(circle at 50% 40%,#22244a,#101125 75%);display:flex;align-items:center;justify-content:center;gap:8px;}
+.thumb.mem span{width:34px;height:46px;border-radius:8px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#f2f2f7;}
+.thumb.mem span.h{color:#00d2ff;background:rgba(0,210,255,.1);border:1px dashed rgba(0,210,255,.5);}
